@@ -1,74 +1,145 @@
 #include "Chemistry.h"
-#include <ctype.h>
-#include <string.h>
-
-namespace {
-static const Chemistry::Element E[] = {
-{"H","Hidrogenio",1,"1","1","nao-metal","1s1"},
-{"He","Helio",2,"18","1","gas nobre","1s2"},
-{"Li","Litio",3,"1","2","metal alcalino","[He] 2s1"},
-{"Be","Berilio",4,"2","2","alcalino-terroso","[He] 2s2"},
-{"B","Boro",5,"13","2","metaloide","[He] 2s2 2p1"},
-{"C","Carbono",6,"14","2","nao-metal","[He] 2s2 2p2"},
-{"N","Nitrogenio",7,"15","2","nao-metal","[He] 2s2 2p3"},
-{"O","Oxigenio",8,"16","2","nao-metal","[He] 2s2 2p4"},
-{"F","Fluor",9,"17","2","halogenio","[He] 2s2 2p5"},
-{"Ne","Neonio",10,"18","2","gas nobre","[He] 2s2 2p6"},
-{"Na","Sodio",11,"1","3","metal alcalino","[Ne] 3s1"},
-{"Mg","Magnesio",12,"2","3","alcalino-terroso","[Ne] 3s2"},
-{"Al","Aluminio",13,"13","3","pos-transicao","[Ne] 3s2 3p1"},
-{"Si","Silicio",14,"14","3","metaloide","[Ne] 3s2 3p2"},
-{"P","Fosforo",15,"15","3","nao-metal","[Ne] 3s2 3p3"},
-{"S","Enxofre",16,"16","3","nao-metal","[Ne] 3s2 3p4"},
-{"Cl","Cloro",17,"17","3","halogenio","[Ne] 3s2 3p5"},
-{"Ar","Argonio",18,"18","3","gas nobre","[Ne] 3s2 3p6"},
-{"K","Potassio",19,"1","4","metal alcalino","[Ar] 4s1"},
-{"Ca","Calcio",20,"2","4","alcalino-terroso","[Ar] 4s2"},
-{"Fe","Ferro",26,"8","4","metal de transicao","[Ar] 3d6 4s2"},
-{"Cu","Cobre",29,"11","4","metal de transicao","[Ar] 3d10 4s1"},
-{"Zn","Zinco",30,"12","4","metal de transicao","[Ar] 3d10 4s2"},
-{"Br","Bromo",35,"17","4","halogenio","[Ar] 3d10 4s2 4p5"},
-{"Ag","Prata",47,"11","5","metal de transicao","[Kr] 4d10 5s1"},
-{"I","Iodo",53,"17","5","halogenio","[Kr] 4d10 5s2 5p5"},
-{"Ba","Bario",56,"2","6","alcalino-terroso","[Xe] 6s2"},
-{"Au","Ouro",79,"11","6","metal de transicao","[Xe] 4f14 5d10 6s1"},
-{"Hg","Mercurio",80,"12","6","metal de transicao","[Xe] 4f14 5d10 6s2"},
-{"Pb","Chumbo",82,"14","6","pos-transicao","[Xe] 4f14 5d10 6s2 6p2"},
-{"U","Uranio",92,"act","7","actinideo","[Rn] 5f3 6d1 7s2"}
-};
-}
+#include <cstring>
 
 namespace Chemistry {
-const Element* byAtomicNumber(uint8_t z) {
-    for (auto &x : E) if (x.z == z) return &x;
+
+static const Element elements[] = {
+    {1,  "H",  "Hidrogenio",   1,  1,  "nao metal",        "1s1"},
+    {2,  "He", "Helio",        18,  1,  "gas nobre",        "1s2"},
+
+    {3,  "Li", "Litio",         1,  2,  "metal alcalino",   "[He] 2s1"},
+    {4,  "Be", "Berilio",       2,  2,  "alcalino-terroso", "[He] 2s2"},
+    {5,  "B",  "Boro",         13,  2,  "metaloide",        "[He] 2s2 2p1"},
+    {6,  "C",  "Carbono",      14,  2,  "nao metal",        "[He] 2s2 2p2"},
+    {7,  "N",  "Nitrogenio",   15,  2,  "nao metal",        "[He] 2s2 2p3"},
+    {8,  "O",  "Oxigenio",     16,  2,  "nao metal",        "[He] 2s2 2p4"},
+    {9,  "F",  "Fluor",        17,  2,  "halogenio",        "[He] 2s2 2p5"},
+    {10, "Ne", "Neonio",       18,  2,  "gas nobre",        "[He] 2s2 2p6"},
+
+    {11, "Na", "Sodio",         1,  3,  "metal alcalino",   "[Ne] 3s1"},
+    {12, "Mg", "Magnesio",      2,  3,  "alcalino-terroso", "[Ne] 3s2"},
+    {13, "Al", "Aluminio",     13,  3,  "metal",            "[Ne] 3s2 3p1"},
+    {14, "Si", "Silicio",      14,  3,  "metaloide",        "[Ne] 3s2 3p2"},
+    {15, "P",  "Fosforo",       15,  3,  "nao metal",        "[Ne] 3s2 3p3"},
+    {16, "S",  "Enxofre",       16,  3,  "nao metal",        "[Ne] 3s2 3p4"},
+    {17, "Cl", "Cloro",         17,  3,  "halogenio",        "[Ne] 3s2 3p5"},
+    {18, "Ar", "Argonio",       18,  3,  "gas nobre",        "[Ne] 3s2 3p6"},
+
+    {19, "K",  "Potassio",       1,  4,  "metal alcalino",   "[Ar] 4s1"},
+    {20, "Ca", "Calcio",         2,  4,  "alcalino-terroso", "[Ar] 4s2"},
+
+    {26, "Fe", "Ferro",          8,  4,  "metal de transicao", "[Ar] 3d6 4s2"},
+    {29, "Cu", "Cobre",         11,  4,  "metal de transicao", "[Ar] 3d10 4s1"},
+    {30, "Zn", "Zinco",         12,  4,  "metal de transicao", "[Ar] 3d10 4s2"},
+
+    {35, "Br", "Bromo",         17,  4,  "halogenio",        "[Ar] 3d10 4s2 4p5"},
+
+    {47, "Ag", "Prata",         11,  5,  "metal de transicao", "[Kr] 4d10 5s1"},
+    {53, "I",  "Iodo",          17,  5,  "halogenio",        "[Kr] 4d10 5s2 5p5"},
+
+    {56, "Ba", "Bario",          2,  6,  "alcalino-terroso", "[Xe] 6s2"},
+    {79, "Au", "Ouro",          11,  6,  "metal de transicao", "[Xe] 4f14 5d10 6s1"},
+    {80, "Hg", "Mercurio",      12,  6,  "metal de transicao", "[Xe] 4f14 5d10 6s2"},
+    {82, "Pb", "Chumbo",        14,  6,  "metal",            "[Xe] 4f14 5d10 6s2 6p2"},
+
+    {92, "U",  "Uranio",         0,  7,  "actinideo",        "[Rn] 5f3 6d1 7s2"}
+};
+
+static const size_t elementCount =
+    sizeof(elements) / sizeof(elements[0]);
+
+const Element* findBySymbol(const String& symbol) {
+    for (size_t i = 0; i < elementCount; ++i) {
+        if (symbol.equalsIgnoreCase(elements[i].symbol)) {
+            return &elements[i];
+        }
+    }
+
     return nullptr;
 }
 
-const Element* find(const String& q) {
-    String s = q; s.trim();
-    for (auto &x : E) {
-        if (s.equalsIgnoreCase(x.symbol) || s.equalsIgnoreCase(x.name)) return &x;
+const Element* findByName(const String& name) {
+    for (size_t i = 0; i < elementCount; ++i) {
+        if (name.equalsIgnoreCase(elements[i].name)) {
+            return &elements[i];
+        }
     }
-    int z = s.toInt();
-    return z > 0 ? byAtomicNumber((uint8_t)z) : nullptr;
+
+    return nullptr;
+}
+
+const Element* findByAtomicNumber(int number) {
+    for (size_t i = 0; i < elementCount; ++i) {
+        if (elements[i].atomicNumber == number) {
+            return &elements[i];
+        }
+    }
+
+    return nullptr;
 }
 
 String bondType(const Element& a, const Element& b) {
-    bool am = (String(a.category).indexOf("metal") >= 0);
-    bool bm = (String(b.category).indexOf("metal") >= 0);
-    bool ag = a.category == String("gas nobre");
-    bool bg = b.category == String("gas nobre");
-    if (ag || bg) return "Gas nobre: geralmente nao forma ligacao comum.";
-    if (am && bm) return "Metalica (em uma rede metalica).";
-    if (am != bm) return "Ionica (modelo por transferencia de eletrons).";
-    return "Covalente (modelo por compartilhamento).";
+
+    // Comparacao segura entre const char* e texto.
+    const bool aGasNobre =
+        strcmp(a.category, "gas nobre") == 0;
+
+    const bool bGasNobre =
+        strcmp(b.category, "gas nobre") == 0;
+
+    // Gases nobres normalmente nao formam ligacoes
+    // quimicas comuns nas condicoes escolares.
+    if (aGasNobre || bGasNobre) {
+        return "Nenhuma ligacao comum";
+    }
+
+    const bool aMetal =
+        strstr(a.category, "metal") != nullptr ||
+        strstr(a.category, "alcalino") != nullptr ||
+        strstr(a.category, "terroso") != nullptr ||
+        strstr(a.category, "actinideo") != nullptr;
+
+    const bool bMetal =
+        strstr(b.category, "metal") != nullptr ||
+        strstr(b.category, "alcalino") != nullptr ||
+        strstr(b.category, "terroso") != nullptr ||
+        strstr(b.category, "actinideo") != nullptr;
+
+    // Metal + nao metal -> ionica.
+    if (aMetal != bMetal) {
+        return "Ligacao ionica";
+    }
+
+    // Metal + metal -> metalica.
+    if (aMetal && bMetal) {
+        return "Ligacao metalica";
+    }
+
+    // Nao metal + nao metal -> covalente.
+    return "Ligacao covalente";
 }
 
 String octetNote(const Element& e) {
-    if (e.z == 1) return "Excecao importante: H busca estabilidade com 2 eletrons (dueto).";
-    if (e.z == 2) return "He ja e estavel com 2 eletrons.";
-    if (e.z == 6 || e.z == 7 || e.z == 8 || e.z == 9 || e.z == 17)
-        return "Regra do octeto e um modelo util para este elemento em muitos compostos.";
-    return "Octeto e uma regra de modelo; ha excecoes e casos de valencia variavel.";
+
+    // Hidrogenio e helio sao excecoes importantes:
+    // a estabilidade da primeira camada ocorre com 2 eletrons.
+    if (e.atomicNumber == 1) {
+        return "H segue a regra do dueto: estabilidade com 2 eletrons.";
+    }
+
+    if (e.atomicNumber == 2) {
+        return "He possui a primeira camada completa com 2 eletrons.";
+    }
+
+    // Alguns elementos nao seguem uma regra simples de octeto.
+    if (e.atomicNumber == 5 ||
+        e.atomicNumber == 6 ||
+        e.atomicNumber == 7 ||
+        e.atomicNumber == 8) {
+        return "A regra do octeto e uma aproximacao; existem excecoes.";
+    }
+
+    return "A regra do octeto ajuda a interpretar muitas ligacoes, mas nao e universal.";
 }
-}
+
+} // namespace Chemistry
