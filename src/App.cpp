@@ -81,321 +81,508 @@ void drawWifi(){bg();header("WI-FI");txt(WifiManager::connected()?"Conectado":"N
 void drawGraph(){
   bg();
   header("GRAFICO / FUNCAO");
-
   String expr=input;
-  if(expr.length()==0) expr="x^2";
+ if(screen==BONDS){
+   chemB=(chemB>=118)?1:chemB+1;
+   dirty=true;
+   return;
+ }
 
-  const int gx=4,gy=22,gw=232,gh=96;
-  const float xRange=max(0.5f,graphScale);
-  const float yRange=max(0.5f,graphScale);
-
-  M5Cardputer.Display.drawRect(gx,gy,gw,gh,0xFFFF);
-
-  float x0=graphCenter-xRange;
-  float x1=graphCenter+xRange;
-  float y0=-yRange;
-  float y1=yRange;
-
-  int axisX=(int)round(gx+((0.0f-x0)/(x1-x0))*(gw-1));
-  int axisY=(int)round(gy+((y1-0.0f)/(y1-y0))*(gh-1));
-
-  if(axisX>=gx&&axisX<gx+gw)M5Cardputer.Display.drawFastVLine(axisX,gy,gh,0x7BEF);
-  if(axisY>=gy&&axisY<gy+gh)M5Cardputer.Display.drawFastHLine(gx,axisY,gw,0x7BEF);
-
-  bool havePrev=false;
-  int prevX=0,prevY=0;
-
-  for(int px=0;px<gw;px++){
-    float x=x0+(x1-x0)*(float)px/(float)(gw-1);
-    auto r=MathEngine::evaluate(expr,x);
-
-    if(!r.ok||!isfinite(r.value)){
-      havePrev=false;
-      continue;
-    }
-
-    float yf=r.value;
-
-    if(yf<y0||yf>y1){
-      havePrev=false;
-      continue;
-    }
-
-    int py=(int)round(gy+((y1-yf)/(y1-y0))*(gh-1));
-
-    if(havePrev&&abs(py-prevY)<gh){
-      M5Cardputer.Display.drawLine(prevX,prevY,gx+px,py,0xFFFF);
-    }else{
-      M5Cardputer.Display.drawPixel(gx+px,py,0xFFFF);
-    }
-
-    prevX=gx+px;
-    prevY=py;
-    havePrev=true;
-  }
-
-  M5Cardputer.Display.setTextSize(1);
-  M5Cardputer.Display.setCursor(4,121);
-  M5Cardputer.Display.printf("f(x)=%s",expr.c_str());
-
-  M5Cardputer.Display.setCursor(4,133);
-  M5Cardputer.Display.print("ENTER editar  DEL voltar");
-
-  if(graphEditing){
-    M5Cardputer.Display.setCursor(190,121);
-    M5Cardputer.Display.print("EDITANDO");
-  }
-}
-
-void draw(){
-  if(!dirty)return;
-  dirty=false;
-  switch(screen){
-    case HOME:drawHome();break;
-    case MATH:drawMath();break;
-    case PHYSICS:drawPhys();break;
-    case CHEMISTRY:drawChem();break;
-    case PERIODIC:drawPeriodic();break;
-    case CHEM_INFO:drawChemInfo();break;
-    case BONDS:drawBonds();break;
-    case BIOLOGY:drawBiology();break;
-    case FILES:
-    case SD_BROWSER:drawSdBrowser();break;
-    case SD_TEXT:drawText();break;
-    case IMAGE_VIEW:drawImage();break;
-    case WIFI:drawWifi();break;
-    case NOTES:drawNotes();break;
-    case CALC:drawCalc();break;
-    case EQUATION:drawEquation("RESOLVER EQUACAO");break;
-    case EXPONENTIAL:drawEquation("EQUACAO EXPONENCIAL");break;
-    case TRIG:drawEquation("TRIG / LOG / RAIZ");break;
-    case GRAPH:drawGraph();break;
-    case PHYSICS_RUN:drawPhysRun();break;
-    case PHYSICS_ASSIST:drawPhysicsAssist();break;
-    case PHYSICS_DATA:drawPhysicsData();break;
-    case PHYSICS_VALUES:drawPhysicsValues();break;
-    case PHYSICS_RESULT:drawPhysicsResult();break;
-    case NOTES_EDIT:drawInput("NOVA ANOTACAO","Digite o texto e pressione ENTER para salvar.");break;
-    case RENAME:drawRename();break;
-  }
-}
-
-void goHome(){screen=HOME;selected=0;input="";message="";dirty=true;}
-
-void back(){
-  if(screen==HOME)return;
-  if(screen==MATH||screen==PHYSICS||screen==CHEMISTRY||screen==WIFI||screen==NOTES||screen==BIOLOGY||screen==FILES){
-    goHome();
-    return;
-  }
-  if(screen==SD_TEXT||screen==IMAGE_VIEW){screen=SD_BROWSER;dirty=true;return;}
-  if(screen==SD_BROWSER){goHome();return;}
-  if(screen==PERIODIC||screen==CHEM_INFO||screen==BONDS){screen=CHEMISTRY;selected=0;dirty=true;return;}
-  if(screen==CALC||screen==EQUATION||screen==EXPONENTIAL||screen==TRIG||screen==GRAPH){screen=MATH;selected=0;input="";message="";dirty=true;return;}
-  if(screen==PHYSICS_RUN||screen==PHYSICS_ASSIST||screen==PHYSICS_DATA||screen==PHYSICS_VALUES||screen==PHYSICS_RESULT){screen=PHYSICS;selected=0;input="";message="";dirty=true;return;}
-  if(screen==NOTES_EDIT){screen=NOTES;dirty=true;return;}
-  if(screen==RENAME){screen=SD_BROWSER;input="";renameOld="";renameExt="";dirty=true;return;}
-  goHome();
-}
-
-void appendInput(char c){
-  if(c=='`')return;
-  if(c==',')c='.';
-  if(c>=32&&c<=126){
-    input+=c;
-    dirty=true;
-  }
-}
-
-void activate(){
- if(screen==HOME){
-   switch(selected){
-     case 0:screen=MATH;break;
-     case 1:screen=PHYSICS;break;
-     case 2:screen=CHEMISTRY;break;
-     case 3:screen=PERIODIC;chemZ=1;break;
-     case 4:screen=BIOLOGY;path="/BIOLOGIA";break;
-     case 5:screen=FILES;path="/";break;
-     case 6:screen=WIFI;break;
-     case 7:screen=NOTES;break;
+ if(screen==NOTES_EDIT){
+   if(input.length()){
+     String p="/ANOTACOES/nota_"+String(millis())+".txt";
+     message=SDManager::writeText(p,input)?"Anotacao salva no SD":"Falha ao salvar";
    }
-   selected=0;
+   dirty=true;
+   return;
+ }
+
+ if(screen==RENAME){
+   String base=input;
+
+   while(base.startsWith(" "))base.remove(0,1);
+   while(base.endsWith(" "))base.remove(base.length()-1);
+
+   if(base.length()&&base.indexOf("/")<0&&base.indexOf("\\")<0){
+     String dest=SDManager::normalize(path,base+renameExt);
+     message=SDManager::renameFile(renameOld,dest)?"Arquivo renomeado":"Nao foi possivel renomear";
+   }
+
+   screen=SD_BROWSER;
    input="";
-   message="";
+   renameOld="";
+   renameExt="";
    dirty=true;
    return;
  }
 
- if(screen==MATH){
-   switch(selected){
-     case 0:screen=CALC;break;
-     case 1:screen=EQUATION;break;
-     case 2:screen=EXPONENTIAL;break;
-     case 3:screen=TRIG;break;
-     case 4:screen=GRAPH;input="x^2";graphEditing=false;break;
-     case 5:screen=SD_BROWSER;path="/MATEMATICA";break;
-     case 6:screen=SD_BROWSER;path="/MATEMATICA";break;
+ if(screen==SD_BROWSER||screen==BIOLOGY||screen==FILES){
+   String l=SDManager::list(path);
+   int p=0,line=0;
+
+   while(p<l.length()){
+     int e=l.indexOf('\n',p);
+     if(e<0)e=l.length();
+
+     if(line==selected){
+       String s=l.substring(p,e);
+
+       if(s.startsWith("[D] ")){
+         path=SDManager::normalize(path,s.substring(4));
+         selected=0;
+       }
+       else if(s.startsWith("[F] ")){
+         String fp=SDManager::normalize(path,s.substring(4));
+         String ext=extension(fp);
+
+         if(ext=="txt"||ext=="md"||ext=="csv"||ext=="log"||
+            ext=="ini"||ext=="json"||ext=="py"||ext=="cpp"||
+            ext=="h"||ext=="hpp"||ext=="ino"||ext=="js"||
+            ext=="css"||ext=="html"){
+           textCache=SDManager::readText(fp);
+           textOffset=0;
+           screen=SD_TEXT;
+         }
+         else if(ext=="jpg"||ext=="jpeg"||ext=="png"||ext=="bmp"){
+           path=fp;
+           screen=IMAGE_VIEW;
+         }
+         else{
+           message="Arquivo armazenado no SD.\nPDF/PPT/PPTX: transferencia disponivel.";
+         }
+       }
+
+       break;
+     }
+
+     p=e+1;
+     line++;
    }
-   selected=0;
-   input=screen==GRAPH?input:"";
-   message="";
+
    dirty=true;
    return;
  }
+}
 
- if(screen==PHYSICS){
-   if(selected==6){
-     screen=SD_BROWSER;
-     path="/FISICA";
-   }else if(selected==0){
-     assistCategory=0;
-     selected=0;
-     setAssistVars();
-     screen=PHYSICS_ASSIST;
-   }else{
-     physTarget=selected;
-     screen=PHYSICS_RUN;
-     input="";
-     message="";
+void move(int d){
+ selected+=d;
+
+ int maxItems=0;
+
+ if(screen==HOME)maxItems=7;
+ else if(screen==MATH)maxItems=6;
+ else if(screen==PHYSICS)maxItems=6;
+ else if(screen==PHYSICS_ASSIST)maxItems=7;
+ else if(screen==PHYSICS_DATA)
+   maxItems=(assistVarCount>0)?assistVarCount-1:0;
+ else if(screen==CHEMISTRY)maxItems=3;
+ else if(screen==NOTES)maxItems=2;
+ else if(screen==SD_BROWSER||screen==BIOLOGY||screen==FILES){
+   String l=SDManager::list(path);
+   int n=0,p=0;
+
+   while(p<l.length()){
+     int e=l.indexOf('\n',p);
+     if(e<0)e=l.length();
+     n++;
+     p=e+1;
    }
-   dirty=true;
-   return;
- }
 
- if(screen==CHEMISTRY){
-   if(selected==0)screen=PERIODIC;
-   else if(selected==1)screen=CHEM_INFO;
-   else if(selected==2)screen=BONDS;
-   else{
-     screen=SD_BROWSER;
-     path="/QUIMICA";
+   maxItems=(n>0)?n-1:0;
+ }
+ else maxItems=0;
+
+ if(selected<0)selected=maxItems;
+ if(selected>maxItems)selected=0;
+
+ dirty=true;
+}
+
+void moveChem(int d){
+ chemZ=(d<0)?
+   (chemZ<=1?118:chemZ-1):
+   (chemZ>=118?1:chemZ+1);
+
+ dirty=true;
+}
+
+void movePeriodic(int dx,int dy){
+ const auto*e=Chemistry::byAtomicNumber(chemZ);
+
+ int p=atoi(e->period);
+ int g=atoi(e->group);
+
+ for(int t=0;t<30;t++){
+   g+=dx;
+   p+=dy;
+
+   if(g<1)g=18;
+   if(g>18)g=1;
+   if(p<1)p=7;
+   if(p>7)p=1;
+
+   int z=zAt(p,g);
+
+   if(z){
+     chemZ=z;
+     dirty=true;
+     return;
    }
-   selected=0;
-   dirty=true;
+ }
+}
+
+void key(){
+ if(!M5Cardputer.Keyboard.isChange()||
+    !M5Cardputer.Keyboard.isPressed())
+   return;
+
+ auto k=M5Cardputer.Keyboard.keysState();
+
+ if(screen==SD_TEXT){
+   for(auto ch:k.word){
+     if(ch==';'||ch=='w'||ch=='W')
+       textOffset=max(0,textOffset-1);
+     else if(ch=='.'||ch=='s'||ch=='S')
+       textOffset++;
+
+     dirty=true;
+   }
+
+   if(k.del){
+     back();
+     return;
+   }
+
    return;
  }
 
- if(screen==PERIODIC){screen=CHEM_INFO;dirty=true;return;}
- if(screen==CHEM_INFO){screen=BONDS;dirty=true;return;}
+ if(screen==SD_BROWSER||screen==BIOLOGY||screen==FILES){
+   for(auto ch:k.word){
 
- if(screen==CALC||screen==TRIG){
-   auto r=MathEngine::evaluate(input);
-   message=r.text;
-   dirty=true;
+     if(ch=='n'||ch=='N'){
+       String l=SDManager::list(path);
+       int p=0,line=0;
+
+       while(p<l.length()){
+         int e=l.indexOf('\n',p);
+         if(e<0)e=l.length();
+
+         if(line==selected){
+           String s=l.substring(p,e);
+
+           if(s.startsWith("[F] ")){
+             renameOld=SDManager::normalize(
+               path,
+               s.substring(4)
+             );
+
+             int dot=s.lastIndexOf('.');
+             renameExt=dot>0?s.substring(dot):"";
+             input="";
+             screen=RENAME;
+           }
+
+           break;
+         }
+
+         p=e+1;
+         line++;
+       }
+
+       dirty=true;
+       return;
+     }
+
+     else if(ch==';'||ch=='w'||ch=='W'){
+       selected--;
+       dirty=true;
+     }
+
+     else if(ch=='.'||ch=='s'||ch=='S'){
+       selected++;
+       dirty=true;
+     }
+
+     else if(ch==','){
+       int slash=path.lastIndexOf('/');
+
+       if(path!="/"){
+         if(slash<=0)
+           path="/";
+         else
+           path=path.substring(0,slash);
+
+         selected=0;
+         dirty=true;
+       }
+     }
+
+     else if(ch=='/'){
+       activate();
+       return;
+     }
+   }
+
+   if(k.del){
+     if(path!="/"){
+       int slash=path.lastIndexOf('/');
+
+       if(slash<=0)
+         path="/";
+       else
+         path=path.substring(0,slash);
+
+       selected=0;
+       dirty=true;
+     }
+     else{
+       back();
+     }
+
+     return;
+   }
+
+   if(k.enter){
+     activate();
+     return;
+   }
+
    return;
  }
 
- if(screen==EQUATION){
-   auto r=MathEngine::solveEquation(input);
-   message=r.text;
-   dirty=true;
-   return;
- }
+ if(screen==RENAME){
+   for(auto ch:k.word){
+     if(ch==' '||ch=='_'||
+        isAlphaNumeric(ch)||
+        ch=='-'||ch=='.'){
+       if(ch!='.')
+         input+=ch;
 
- if(screen==EXPONENTIAL){
-   auto r=MathEngine::solveExponential(input);
-   message=r.text;
-   dirty=true;
-   return;
- }
+       dirty=true;
+     }
+   }
 
- if(screen==GRAPH){
-   graphEditing=!graphEditing;
-   dirty=true;
-   return;
- }
+   if(k.del){
+     if(input.length())
+       input.remove(input.length()-1);
+     else
+       back();
 
- if(screen==PHYSICS_ASSIST){
-   assistCategory=selected;
-   setAssistVars();
-   selected=0;
-   screen=PHYSICS_DATA;
-   dirty=true;
+     dirty=true;
+     return;
+   }
+
+   if(k.enter){
+     activate();
+     return;
+   }
+
    return;
  }
 
  if(screen==PHYSICS_DATA){
-   if(assistVarCount==0){
-     message="Nenhum dado disponivel.";
-     screen=PHYSICS_RESULT;
-     dirty=true;
+   for(auto ch:k.word){
+
+     if(ch=='c'||ch=='C'){
+       assistVarPos=0;
+       input="";
+       message="";
+       screen=PHYSICS_VALUES;
+       dirty=true;
+       return;
+     }
+
+     if(ch==';'||ch=='w'||ch=='W'){
+       selected--;
+
+       if(selected<0)
+         selected=assistVarCount-1;
+
+       dirty=true;
+     }
+
+     else if(ch=='.'||ch=='s'||ch=='S'){
+       selected++;
+
+       if(selected>=assistVarCount)
+         selected=0;
+
+       dirty=true;
+     }
+   }
+
+   if(k.enter){
+     activate();
      return;
    }
-   if(assistSelected[selected])assistSelected[selected]=false;
-   else assistSelected[selected]=true;
-   dirty=true;
+
+   if(k.del){
+     back();
+     return;
+   }
+
+   return;
+ }
+
+ if(screen==PHYSICS_ASSIST){
+   for(auto ch:k.word){
+
+     if(ch==';'||ch=='w'||ch=='W'){
+       selected--;
+
+       if(selected<0)
+         selected=7;
+
+       dirty=true;
+     }
+
+     else if(ch=='.'||ch=='s'||ch=='S'){
+       selected++;
+
+       if(selected>7)
+         selected=0;
+
+       dirty=true;
+     }
+   }
+
+   if(k.enter){
+     activate();
+     return;
+   }
+
+   if(k.del){
+     back();
+     return;
+   }
+
    return;
  }
 
  if(screen==PHYSICS_VALUES){
-   advanceToSelectedAssistVar();
+   for(auto ch:k.word)
+     appendInput(ch);
 
-   if(assistVarPos>=assistVarCount){
-     message="Nenhum dado foi preenchido.";
-     screen=PHYSICS_RESULT;
+   if(k.del){
+     if(input.length())
+       input.remove(input.length()-1);
+     else
+       back();
+
      dirty=true;
      return;
    }
 
-   if(input.length()==0){
-     message="Digite um valor para "+assistVars[assistVarPos];
-     dirty=true;
+   if(k.enter){
+     activate();
      return;
    }
 
-   assistValues[assistVarPos]=input;
-   input="";
-   assistVarPos++;
-   advanceToSelectedAssistVar();
-
-   if(assistVarPos>=assistVarCount){
-     String data="";
-     for(int i=0;i<assistVarCount;i++){
-       if(assistSelected[i]&&assistValues[i].length()){
-         if(data.length())data+=",";
-         data+=assistVars[i]+"="+assistValues[i];
-       }
-     }
-     message=Physics::solve(assistCategory,data);
-     screen=PHYSICS_RESULT;
-   }
-
-   dirty=true;
    return;
  }
 
  if(screen==PHYSICS_RESULT){
-   setAssistVars();
-   screen=PHYSICS_ASSIST;
-   selected=0;
-   dirty=true;
-   return;
- }
-
- if(screen==PHYSICS_RUN){
-   message=Physics::solve(physTarget,input);
-   dirty=true;
-   return;
- }
-
- if(screen==NOTES){
-   if(selected==0){
-     screen=NOTES_EDIT;
-     input="";
-     message="";
-   }else if(selected==1){
-     screen=SD_BROWSER;
-     path="/ANOTACOES";
-     selected=0;
-   }else{
-     screen=SD_BROWSER;
-     path="/MATERIAIS";
-     selected=0;
+   if(k.enter){
+     activate();
+     return;
    }
-   dirty=true;
+
+   if(k.del){
+     back();
+     return;
+   }
+
    return;
  }
 
- if(screen==BONDS){
-   chemB=(chemB>=118)?1:chemB+1;
-   dirty=true2
+ bool text=(
+   screen==CALC||
+   screen==EQUATION||
+   screen==EXPONENTIAL||
+   screen==TRIG||
+   screen==PHYSICS_RUN||
+   screen==NOTES_EDIT||
+   (screen==GRAPH&&graphEditing)
+ );
+
+ for(auto ch:k.word){
+
+   if(text){
+     appendInput(ch);
+     continue;
+   }
+
+   if(screen==PERIODIC){
+     if(ch==',')movePeriodic(-1,0);
+     else if(ch=='/')movePeriodic(1,0);
+     else if(ch==';')movePeriodic(0,-1);
+     else if(ch=='.')movePeriodic(0,1);
+     else if(ch=='w'||ch=='W')movePeriodic(0,-1);
+     else if(ch=='s'||ch=='S')movePeriodic(0,1);
+   }
+
+   else if(screen==CHEM_INFO||screen==BONDS){
+     if(ch==','||ch=='w'||ch=='W')
+       moveChem(-1);
+     else if(ch=='/'||ch=='s'||ch=='S')
+       moveChem(1);
+   }
+
+   else if(screen==GRAPH){
+     if(ch==',')
+       graphCenter-=0.5;
+     else if(ch=='/')
+       graphCenter+=0.5;
+     else if(ch==';')
+       graphScale*=1.15;
+     else if(ch=='.')
+       graphScale/=1.15;
+
+     dirty=true;
+   }
+
+   else if(ch==','||ch=='w'||ch=='W'){
+     move(-1);
+   }
+
+   else if(ch=='/'||ch=='s'||ch=='S'){
+     move(1);
+   }
+ }
+
+ if(k.del){
+   if(text&&input.length()){
+     input.remove(input.length()-1);
+     dirty=true;
+   }
+   else{
+     back();
+   }
+
+   return;
+ }
+
+ if(k.enter){
+   activate();
+   return;
+ }
+}
+
+}
+
+namespace App {
+
+void begin(){
+  SDManager::begin();
+  WifiManager::begin();
+  dirty=true;
+  draw();
+}
+
+void update(){
+  key();
+  WifiManager::update();
+  draw();
+}
+
+}
