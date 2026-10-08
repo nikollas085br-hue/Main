@@ -1,0 +1,8 @@
+#include "Physics.h"
+#include <math.h>
+namespace Physics {
+static bool val(const String& d,const char* key,double& out){String k=String(key)+"=";int p=d.indexOf(k);if(p<0)return false;p+=k.length();int e=d.indexOf(',',p);if(e<0)e=d.length();out=d.substring(p,e).toDouble();return true;}
+static String f(double x){if(!isfinite(x))return "indefinido";return String(x,6);}
+String formula(uint8_t t){switch(t){case 0:return "F = m*a";case 1:return "v = d/t";case 2:return "d = v*t";case 3:return "a = (vf-vi)/t";case 4:return "t = d/v";case 5:return "E = P*t";case 6:return "P = E/t";case 7:return "rho = m/V";case 8:return "W = F*d";case 9:return "Ep = m*g*h";default:return "";}}
+String solve(uint8_t t,const String& d){double m,a,F,v,di,tm,vi,vf,E,P,rho,V,g,h;switch(t){case 0: if(val(d,"m",m)&&val(d,"a",a))return "F = "+f(m*a)+" N";break;case 1:if(val(d,"d",di)&&val(d,"t",tm)&&tm!=0)return "v = "+f(di/tm)+" m/s";break;case 2:if(val(d,"v",v)&&val(d,"t",tm))return "d = "+f(v*tm)+" m";break;case 3:if(val(d,"vf",vf)&&val(d,"vi",vi)&&val(d,"t",tm)&&tm!=0)return "a = "+f((vf-vi)/tm)+" m/s2";break;case 4:if(val(d,"d",di)&&val(d,"v",v)&&v!=0)return "t = "+f(di/v)+" s";break;case 5:if(val(d,"P",P)&&val(d,"t",tm))return "E = "+f(P*tm)+" J";break;case 6:if(val(d,"E",E)&&val(d,"t",tm)&&tm!=0)return "P = "+f(E/tm)+" W";break;case 7:if(val(d,"m",m)&&val(d,"V",V)&&V!=0)return "rho = "+f(m/V)+" kg/m3";break;case 8:if(val(d,"F",F)&&val(d,"d",di))return "W = "+f(F*di)+" J";break;case 9:if(val(d,"m",m)&&val(d,"g",g)&&val(d,"h",h))return "Ep = "+f(m*g*h)+" J";break;}return "Dados insuficientes. Ex.: m=2,a=3";}
+}
