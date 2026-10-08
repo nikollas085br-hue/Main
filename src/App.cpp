@@ -61,10 +61,53 @@ void drawImage(){
  bg();
  header("IMAGEM • SD");
  String ext=extension(path);
- if(ext=="jpg"||ext=="jpeg") M5Cardputer.Display.drawJpgFile(SD,path.c_str(),0,18,240,103);
- else if(ext=="png") M5Cardputer.Display.drawPngFile(SD,path.c_str(),0,18,240,103);
- else if(ext=="bmp") M5Cardputer.Display.drawBmpFile(SD,path.c_str(),0,18);
- else txt("Formato de imagem nao suportado",5,40,TFT_RED);
+
+ // M5GFX 0.2.32 can have a DataWrapper/SDFS compatibility issue
+ // with draw*File(SD, ...). Read the image into RAM and use the
+ // memory-based decoder instead.
+ if(ext=="jpg"||ext=="jpeg"||ext=="png"||ext=="bmp"){
+   File f=SD.open(path,"r");
+   if(!f){
+     txt("Nao foi possivel abrir a imagem",5,40,TFT_RED);
+     footer("DEL voltar");
+     return;
+   }
+
+   size_t len=f.size();
+   if(len==0 || len>600000){
+     f.close();
+     txt("Imagem muito grande ou vazia",5,40,TFT_RED);
+     footer("DEL voltar");
+     return;
+   }
+
+   uint8_t* data=(uint8_t*)malloc(len);
+   if(!data){
+     f.close();
+     txt("Memoria insuficiente para a imagem",5,40,TFT_RED);
+     footer("DEL voltar");
+     return;
+   }
+
+   size_t readLen=f.read(data,len);
+   f.close();
+
+   bool ok=false;
+   if(readLen==len){
+     if(ext=="jpg"||ext=="jpeg")
+       ok=M5Cardputer.Display.drawJpg(data,len,0,18,240,103);
+     else if(ext=="png")
+       ok=M5Cardputer.Display.drawPng(data,len,0,18,240,103);
+     else if(ext=="bmp")
+       ok=M5Cardputer.Display.drawBmp(data,len,0,18,240,103);
+   }
+
+   free(data);
+
+   if(!ok) txt("Nao foi possivel decodificar a imagem",5,40,TFT_RED);
+ }else{
+   txt("Formato de imagem nao suportado",5,40,TFT_RED);
+ }
  footer("DEL voltar");
 }
 void drawNotesMenu(){bg();header("ANOTACOES");card(5,27,72,72,"+","NOVA",selected==0,TFT_GREEN);card(83,27,72,72,"SD","LER",selected==1,TFT_CYAN);card(161,27,72,72,"N","MATERIAIS",selected==2,TFT_YELLOW);footer();}
@@ -89,7 +132,30 @@ void activate(){
  if(screen==NOTES_EDIT){if(input.length()){String p="/ANOTACOES/nota_"+String(millis())+".txt";message=SDManager::writeText(p,input)?"Anotacao salva no SD":"Falha ao salvar";}dirty=true;return;}
  if(screen==SD_BROWSER||screen==BIOLOGY||screen==FILES){String l=SDManager::list(path);int p=0,line=0;while(p<l.length()){int e=l.indexOf('\n',p);if(e<0)e=l.length();if(line==selected){String s=l.substring(p,e);if(s.startsWith("[D] ")){path=SDManager::normalize(path,s.substring(4));selected=0;}else if(s.startsWith("[F] ")){String fp=SDManager::normalize(path,s.substring(4));String ext=extension(fp);if(ext=="txt"||ext=="md"||ext=="csv"||ext=="log"||ext=="ini"){textCache=SDManager::readText(fp);textOffset=0;screen=SD_TEXT;}else if(ext=="jpg"||ext=="jpeg"||ext=="png"||ext=="bmp"){path=fp;screen=IMAGE_VIEW;}else{message="Arquivo armazenado no SD.\nPDF/PPT/PPTX: transferencia disponivel.";}}break;}p=e+1;line++;}dirty=true;return;}
 }
-void move(int d){selected+=d;int max=0;if(screen==HOME)max=7;else if(screen==MATH)max=6;else if(screen==PHYSICS)max=6;else if(screen==CHEMISTRY)max=3;else if(screen==NOTES)max=2;else if(screen==SD_BROWSER||screen==BIOLOGY||screen==FILES){String l=SDManager::list(path);int n=0,p=0;while(p<l.length()){int e=l.indexOf('\n',p);if(e<0)e=l.length();n++;p=e+1;}max=max(0,n-1);}else max=0;if(selected<0)selected=max;if(selected>max)selected=0;dirty=true;}
+void move(int d){
+ selected+=d;
+ int maxItems=0;
+ if(screen==HOME)maxItems=7;
+ else if(screen==MATH)maxItems=6;
+ else if(screen==PHYSICS)maxItems=6;
+ else if(screen==CHEMISTRY)maxItems=3;
+ else if(screen==NOTES)maxItems=2;
+ else if(screen==SD_BROWSER||screen==BIOLOGY||screen==FILES){
+   String l=SDManager::list(path);
+   int n=0,p=0;
+   while(p<l.length()){
+     int e=l.indexOf('\\n',p);
+     if(e<0)e=l.length();
+     n++;
+     p=e+1;
+   }
+   maxItems=(n>0)?n-1:0;
+ }else maxItems=0;
+ if(selected<0)selected=maxItems;
+ if(selected>maxItems)selected=0;
+ dirty=true;
+}
+
 void moveChem(int d){chemZ=(d<0)?(chemZ<=1?118:chemZ-1):(chemZ>=118?1:chemZ+1);dirty=true;}
 void movePeriodic(int dx,int dy){const auto*e=Chemistry::byAtomicNumber(chemZ);int p=atoi(e->period),g=atoi(e->group);for(int t=0;t<30;t++){g+=dx;p+=dy;if(g<1)g=18;if(g>18)g=1;if(p<1)p=7;if(p>7)p=1;int z=zAt(p,g);if(z){chemZ=z;dirty=true;return;}}}
 void key(){if(!M5Cardputer.Keyboard.isChange()||!M5Cardputer.Keyboard.isPressed())return;auto k=M5Cardputer.Keyboard.keysState();
