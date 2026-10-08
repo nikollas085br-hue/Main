@@ -62,527 +62,151 @@ void drawChemInfo(){const auto*e=Chemistry::byAtomicNumber(chemZ);bg();header("E
 void drawBonds(){const auto*a=Chemistry::byAtomicNumber(chemZ),*b=Chemistry::byAtomicNumber(chemB);bg();header("LIGACAO QUIMICA");txt("A  "+String(a->symbol)+"  "+a->name,5,26,TFT_CYAN);txt("B  "+String(b->symbol)+"  "+b->name,5,43,TFT_CYAN);txt("TIPO",5,62,TFT_DARKGREY);txt(Chemistry::bondType(*a,*b),45,60,TFT_GREEN);txt("A: "+String(a->config),5,79);txt("B: "+String(b->config),5,94);txt("←/→ muda A   ↑/↓ muda B",5,110,TFT_DARKGREY);}
 void drawWrappedMessage(const String&src,int x,int y,int maxLines,uint16_t c);
 void drawPhysRun(){bg();header(String("FISICA • ")+Physics::name(physTarget));txt("Formula sugerida:",5,24,TFT_DARKGREY);txt(Physics::formula(physTarget),5,38,TFT_CYAN);txt("Dados: m=2,a=3",5,52,TFT_DARKGREY);M5Cardputer.Display.drawRect(5,61,230,23,TFT_DARKGREY);String shown=input;if(shown.length()>35)shown=shown.substring(shown.length()-35);txt(shown,9,68);drawWrappedMessage(message,5,90,2,TFT_YELLOW);footer("ENTER calcular   DEL voltar");}
-void drawWrappedMessage(const String&src,int x,int y,int maxLines,uint16_t c){int p=0;for(int line=0;line<maxLines&&p<src.length();line++){while(p<src.length()&&(src[p]=='\n'||src[p]=='\r'))p++;if(p>=src.length())break;int end=p,chars=0,lastSpace=-1;while(end<src.length()&&src[end]!='\n'&&src[end]!='\r'&&chars<38){if(src[end]==' ')lastSpace=end;end++;chars++;}if(end<src.length()&&src[end]!='\n'&&lastSpace>p)end=lastSpace;String part=src.substring(p,end);part.trim();txt(part,x,y+line*13,c);p=end;if(p<src.length()&&src[p]==' ')p++;}}
+void drawWrappedMessage(const String&src,int x,int y,int maxLines,uint16_t c){int p=0;for(int line=0;line<maxLines&&p<src.length();line++){while(p<src.length()&&(src[p]=='\n'||src[p]=='\r'))p++;if(p>=src.length())break;int end=p,chars=0,lastSpace=-1;while(end<src.length()&&src[end]!='\n'&&src[end]!='\r'&&chars<38){if(src[end]==' ')lastSpace=end;end++;chars++;}if(end<src.length()&&src[end]!='\n'&&lastSpace>p)end=lastSpace;String part=src.substring(p,end);part.trim();txt(part,x,y+line*13,c);p=end;if(p<src.length()&&src[p]==' ')p++;} }
 void advanceToSelectedAssistVar(){while(assistVarPos<assistVarCount&&!assistSelected[assistVarPos])assistVarPos++;}
-void setAssistVars(){String v;switch(assistCategory){case 0:assistVars[assistVarCount++]="F1";assistVars[assistVarCount++]="F2";assistVars[assistVarCount++]="F3";assistVars[assistVarCount++]="m";assistVars[assistVarCount++]="a";break;case 1:assistVars[assistVarCount++]="m";assistVars[assistVarCount++]="g";break;case 2:assistVars[assistVarCount++]="m";assistVars[assistVarCount++]="g";assistVars[assistVarCount++]="theta";break;case 3:assistVars[assistVarCount++]="mu";assistVars[assistVarCount++]="N";assistVars[assistVarCount++]="m";assistVars[assistVarCount++]="g";break;case 4:assistVars[assistVarCount++]="k";assistVars[assistVarCount++]="x";break;case 5:assistVars[assistVarCount++]="vi";assistVars[assistVarCount++]="vf";assistVars[assistVarCount++]="a";assistVars[assistVarCount++]="t";assistVars[assistVarCount++]="d";assistVars[assistVarCount++]="v";break;case 6:assistVars[assistVarCount++]="F";assistVars[assistVarCount++]="d";assistVars[assistVarCount++]="theta";assistVars[assistVarCount++]="m";assistVars[assistVarCount++]="v";assistVars[assistVarCount++]="g";assistVars[assistVarCount++]="h";break;case 7:assistVars[assistVarCount++]="m";assistVars[assistVarCount++]="V";break;}for(int i=0;i<8;i++){assistSelected[i]=false;assistValues[i]="";}assistVarPos=0;advanceToSelectedAssistVar();input="";message="";}
+void setAssistVars(){assistVarCount=0;String v;switch(assistCategory){case 0:v="F1";assistVars[assistVarCount++]=v;assistVars[assistVarCount++]="F2";assistVars[assistVarCount++]="F3";assistVars[assistVarCount++]="m";assistVars[assistVarCount++]="a";break;case 1:assistVars[assistVarCount++]="m";assistVars[assistVarCount++]="g";break;case 2:assistVars[assistVarCount++]="m";assistVars[assistVarCount++]="g";assistVars[assistVarCount++]="theta";break;case 3:assistVars[assistVarCount++]="mu";assistVars[assistVarCount++]="N";assistVars[assistVarCount++]="m";assistVars[assistVarCount++]="g";break;case 4:assistVars[assistVarCount++]="k";assistVars[assistVarCount++]="x";break;case 5:assistVars[assistVarCount++]="vi";assistVars[assistVarCount++]="vf";assistVars[assistVarCount++]="a";assistVars[assistVarCount++]="t";assistVars[assistVarCount++]="d";assistVars[assistVarCount++]="v";break;case 6:assistVars[assistVarCount++]="F";assistVars[assistVarCount++]="d";assistVars[assistVarCount++]="theta";assistVars[assistVarCount++]="m";assistVars[assistVarCount++]="v";assistVars[assistVarCount++]="g";assistVars[assistVarCount++]="h";break;case 7:assistVars[assistVarCount++]="m";assistVars[assistVarCount++]="V";break;}for(int i=0;i<8;i++){assistSelected[i]=false;assistValues[i]="";}assistVarPos=0;advanceToSelectedAssistVar();input="";message="";}
 void drawPhysicsAssist(){bg();header("ASSISTENTE DE FISICA");txt("O que voce esta procurando?",5,23,TFT_WHITE);const char* n[]={"Forca resultante","Forca peso","Forca normal","Atrito","Forca elastica","Cinematica","Energia / trabalho","Densidade"};int start=selected;if(start>5)start=5;for(int i=0;i<3&&start+i<8;i++){int idx=start+i;M5Cardputer.Display.fillRoundRect(5,39+i*25,230,21,3,idx==selected?TFT_CYAN:TFT_DARKGREY);txt(String(idx+1)+"  "+n[idx],10,45+i*25,idx==selected?TFT_BLACK:TFT_WHITE);}footer("↑↓ escolher   ENTER continuar   DEL voltar");}
-void drawPhysicsData(){bg();header(String("DADOS • ")+Physics::name(assistCategory));txt("Marque somente o que voce possui:",5,23,TFT_DARKGREY);int start=selected;if(start>assistVarCount-3)start=max(0,(int)assistVarCount-3);for(int i=0;i<3&&start+i<assistVarCount;i++){int idx=start+i;String mark=assistSelected[idx]?"[X] ":"[ ] ";txt(mark+assistVars[idx],7,43+i*22,idx==selected?TFT_CYAN:TFT_WHITE);}txt("C = confirmar dados",5,111,TFT_YELLOW);footer("↑↓ navegar   ENTER marcar");}
-void drawPhysicsValues(){bg();header("DIGITE OS DADOS");if(assistVarPos>=assistVarCount){txt("Processando...",5,30);return;}txt("Variavel: "+assistVars[assistVarPos],5,27,TFT_CYAN);txt("Digite o valor:",5,43,TFT_DARKGREY);M5Cardputer.Display.drawRoundRect(4,51,232,28,4,TFT_DARKGREY);txt(input,8,60);footer("ENTER confirmar   DEL apagar");}
-void drawPhysicsResult(){bg();header("RESULTADO");drawWrappedMessage(message,5,27,6,TFT_WHITE);footer("ENTER novo   DEL voltar");}
-void drawNotes(){bg();header("ANOTACOES");card(5,27,72,72,"N","NOVA",selected==0,TFT_MAGENTA);card(84,27,72,72,"SD","SALVAS",selected==1,TFT_BLUE);card(163,27,72,72,"M","MATERIAIS",selected==2,TFT_GREEN);footer();}
-void drawSdBrowser(){bg();header("SD • "+path);String l=SDManager::list(path);int p=0,line=0;while(p<l.length()&&line<7){int e=l.indexOf('\n',p);if(e<0)e=l.length();String s=l.substring(p,e);txt((line==selected?"> ":"  ")+s,5,22+line*14,line==selected?TFT_CYAN:TFT_WHITE);p=e+1;line++;}footer("ENTER abrir   N renomear   DEL voltar");}
+void drawPhysicsData(){bg();header(String("DADOS • ")+Physics::name(assistCategory));txt("Marque somente o que voce possui:",5,23,TFT_DARKGREY);int start=selected;if(start>assistVarCount-3)start=max(0,(int)assistVarCount-3);for(int i=0;i<3&&start+i<assistVarCount;i++){int idx=start+i;String mark=assistSelected[idx]?"[X] ":"[ ] ";txt(mark+assistVars[idx],7,43+i*22,idx==selected?TFT_CYAN:TFT_WHITE);}txt("C = confirmar dados",5,111,TFT_YELLOW);footer("↑↓ navegar   ENTER marcar   DEL voltar");}
+void drawPhysicsValues(){bg();header(String("VALORES • ")+Physics::name(assistCategory));String label=assistVars[assistVarPos];txt("Informe o valor de "+label+":",5,27,TFT_WHITE);M5Cardputer.Display.drawRoundRect(5,39,230,27,4,TFT_DARKGREY);String shown=input;if(shown.length()>34)shown=shown.substring(shown.length()-34);txt(shown,9,48,TFT_CYAN);txt("ENTER salvar e proximo",5,80,TFT_DARKGREY);txt(String(assistVarPos+1)+" / "+String(assistVarCount),195,80,TFT_DARKGREY);footer("Digite o numero   DEL voltar");}
+void drawPhysicsResult(){bg();header("RESULTADO • ASSISTENTE");drawWrappedMessage(message,5,24,7,TFT_WHITE);footer("DEL voltar   ENTER novo calculo");}
+void drawSD(){bg();header("SD • "+path);String l=SDManager::list(path);int n=0,p=0;while(p<l.length()){int e=l.indexOf('\n',p);if(e<0)e=l.length();n++;p=e+1;}int start=selected-6;if(start<0)start=0;int line=0;p=0;while(p<l.length()&&line<start+7){int e=l.indexOf('\n',p);if(e<0)e=l.length();if(line>=start){String s=l.substring(p,e);int row=line-start;if(line==selected)M5Cardputer.Display.fillRect(2,22+row*14,236,13,TFT_CYAN);txt(s,5,24+row*14,line==selected?TFT_BLACK:TFT_WHITE);}p=e+1;line++;}footer("ENTER abrir   ↑↓ selecionar   N renomear");}
+void getWrappedLine(const String&src,int wanted,String&out){int p=0,line=0;while(p<src.length()){while(p<src.length()&&(src[p]=='\n'||src[p]=='\r')){if(src[p]=='\n')line++;p++;}if(p>=src.length())break;int end=p,chars=0,lastSpace=-1;while(end<src.length()&&src[end]!='\n'&&src[end]!='\r'&&chars<38){if(src[end]==' ')lastSpace=end;end++;chars++;}if(end<src.length()&&src[end]!='\n'&&lastSpace>p)end=lastSpace;String part=src.substring(p,end);part.trim();if(line==wanted){out=part;return;}line++;p=end;if(p<src.length()&&src[p]==' ')p++;}out="";}
+void drawText(){bg();header("TEXTO • SD");for(int i=0;i<7;i++){String line;getWrappedLine(textCache,textOffset+i,line);if(line.length())txt(line,3,21+i*14,TFT_WHITE);}txt("linha "+String(textOffset+1),190,7,TFT_DARKGREY);footer("↑↓ rolar   DEL voltar");}
 String extension(const String&p){int i=p.lastIndexOf('.');if(i<0)return "";String e=p.substring(i+1);e.toLowerCase();return e;}
-void drawText(){bg();header("ARQUIVO");int p=0,line=0,skip=textOffset;while(p<textCache.length()&&skip>0){int e=textCache.indexOf('\n',p);if(e<0)e=textCache.length();p=e+1;skip--;}while(p<textCache.length()&&line<7){int e=textCache.indexOf('\n',p);if(e<0)e=textCache.length();String s=textCache.substring(p,e);if(s.length()>39)s=s.substring(0,39);txt(s,3,21+line*14);p=e+1;line++;}footer("↑↓ rolar   DEL voltar");}
-void drawImage(){bg();header("IMAGEM");txt("Imagem selecionada:",5,25,TFT_CYAN);txt(path,5,43);txt("Visualizacao simples",5,61,TFT_DARKGREY);footer("DEL voltar");}
-void drawRename(){drawInput("RENOMEAR","Digite somente o novo nome.");}
-void drawBiology(){bg();header("BIOLOGIA");txt("Conteudo de biologia disponivel no SD.",5,25,TFT_CYAN);txt("Abra os materiais pela lista de arquivos.",5,42,TFT_WHITE);footer("DEL voltar");}
-void drawWifi(){bg();header("WI-FI");txt(WifiManager::connected()?"Conectado":"Nao conectado",5,28,WifiManager::connected()?TFT_GREEN:TFT_RED);txt(WifiManager::ip(),5,45);txt("Use o gerenciador Wi-Fi para configuracao.",5,65,TFT_DARKGREY);footer("DEL voltar");}
+
+void drawImage(){
+ bg();
+ header("IMAGEM • SD");
+ String ext=extension(path);
+
+ // M5GFX 0.2.32 can have a DataWrapper/SDFS compatibility issue
+ // with draw*File(SD, ...). Read the image into RAM and use the
+ // memory-based decoder instead.
+ if(ext=="jpg"||ext=="jpeg"||ext=="png"||ext=="bmp"){
+   File f=SD.open(path,"r");
+   if(!f){
+     txt("Nao foi possivel abrir a imagem",5,40,TFT_RED);
+     footer("DEL voltar");
+     return;
+   }
+
+   size_t len=f.size();
+   if(len==0 || len>600000){
+     f.close();
+     txt("Imagem muito grande ou vazia",5,40,TFT_RED);
+     footer("DEL voltar");
+     return;
+   }
+
+   uint8_t* data=(uint8_t*)malloc(len);
+   if(!data){
+     f.close();
+     txt("Memoria insuficiente para a imagem",5,40,TFT_RED);
+     footer("DEL voltar");
+     return;
+   }
+
+   size_t readLen=f.read(data,len);
+   f.close();
+
+   bool ok=false;
+   if(readLen==len){
+     if(ext=="jpg"||ext=="jpeg")
+       ok=M5Cardputer.Display.drawJpg(data,len,0,18,240,103);
+     else if(ext=="png")
+       ok=M5Cardputer.Display.drawPng(data,len,0,18,240,103);
+     else if(ext=="bmp")
+       ok=M5Cardputer.Display.drawBmp(data,len,0,18,240,103);
+   }
+
+   free(data);
+
+   if(!ok) txt("Nao foi possivel decodificar a imagem",5,40,TFT_RED);
+ }else{
+   txt("Formato de imagem nao suportado",5,40,TFT_RED);
+ }
+ footer("DEL voltar");
+}
 
 void drawGraph(){
-  bg();
-  header("GRAFICO / FUNCAO");
-  String expr=input;
- if(screen==BONDS){
-   chemB=(chemB>=118)?1:chemB+1;
-   dirty=true;
-   return;
- }
+ bg();
+ header("GRAFICO / FUNCAO");
 
- if(screen==NOTES_EDIT){
-   if(input.length()){
-     String p="/ANOTACOES/nota_"+String(millis())+".txt";
-     message=SDManager::writeText(p,input)?"Anotacao salva no SD":"Falha ao salvar";
-   }
-   dirty=true;
-   return;
- }
+ String expr=input;
+ if(expr.length()==0)expr="x^2";
 
- if(screen==RENAME){
-   String base=input;
+ const int gx=4,gy=22,gw=232,gh=96;
+ float xRange=max(0.5,graphScale);
+ float yRange=max(0.5,graphScale);
+ float x0=graphCenter-xRange;
+ float x1=graphCenter+xRange;
+ float y0=-yRange;
+ float y1=yRange;
 
-   while(base.startsWith(" "))base.remove(0,1);
-   while(base.endsWith(" "))base.remove(base.length()-1);
+ M5Cardputer.Display.drawRect(gx,gy,gw,gh,TFT_DARKGREY);
 
-   if(base.length()&&base.indexOf("/")<0&&base.indexOf("\\")<0){
-     String dest=SDManager::normalize(path,base+renameExt);
-     message=SDManager::renameFile(renameOld,dest)?"Arquivo renomeado":"Nao foi possivel renomear";
-   }
+ int axisX=(int)round(gx+((0.0-x0)/(x1-x0))*(gw-1));
+ int axisY=(int)round(gy+((y1-0.0)/(y1-y0))*(gh-1));
 
-   screen=SD_BROWSER;
-   input="";
-   renameOld="";
-   renameExt="";
-   dirty=true;
-   return;
- }
+ if(axisX>=gx&&axisX<gx+gw)
+   M5Cardputer.Display.drawFastVLine(axisX,gy,gh,TFT_DARKGREY);
 
- if(screen==SD_BROWSER||screen==BIOLOGY||screen==FILES){
-   String l=SDManager::list(path);
-   int p=0,line=0;
+ if(axisY>=gy&&axisY<gy+gh)
+   M5Cardputer.Display.drawFastHLine(gx,axisY,gw,TFT_DARKGREY);
 
-   while(p<l.length()){
-     int e=l.indexOf('\n',p);
-     if(e<0)e=l.length();
+ bool havePrev=false;
+ int prevX=0,prevY=0;
 
-     if(line==selected){
-       String s=l.substring(p,e);
+ for(int px=0;px<gw;px++){
+   double x=x0+(x1-x0)*(double)px/(double)(gw-1);
+   auto r=MathEngine::evaluate(expr,x);
 
-       if(s.startsWith("[D] ")){
-         path=SDManager::normalize(path,s.substring(4));
-         selected=0;
-       }
-       else if(s.startsWith("[F] ")){
-         String fp=SDManager::normalize(path,s.substring(4));
-         String ext=extension(fp);
-
-         if(ext=="txt"||ext=="md"||ext=="csv"||ext=="log"||
-            ext=="ini"||ext=="json"||ext=="py"||ext=="cpp"||
-            ext=="h"||ext=="hpp"||ext=="ino"||ext=="js"||
-            ext=="css"||ext=="html"){
-           textCache=SDManager::readText(fp);
-           textOffset=0;
-           screen=SD_TEXT;
-         }
-         else if(ext=="jpg"||ext=="jpeg"||ext=="png"||ext=="bmp"){
-           path=fp;
-           screen=IMAGE_VIEW;
-         }
-         else{
-           message="Arquivo armazenado no SD.\nPDF/PPT/PPTX: transferencia disponivel.";
-         }
-       }
-
-       break;
-     }
-
-     p=e+1;
-     line++;
-   }
-
-   dirty=true;
-   return;
- }
-}
-
-void move(int d){
- selected+=d;
-
- int maxItems=0;
-
- if(screen==HOME)maxItems=7;
- else if(screen==MATH)maxItems=6;
- else if(screen==PHYSICS)maxItems=6;
- else if(screen==PHYSICS_ASSIST)maxItems=7;
- else if(screen==PHYSICS_DATA)
-   maxItems=(assistVarCount>0)?assistVarCount-1:0;
- else if(screen==CHEMISTRY)maxItems=3;
- else if(screen==NOTES)maxItems=2;
- else if(screen==SD_BROWSER||screen==BIOLOGY||screen==FILES){
-   String l=SDManager::list(path);
-   int n=0,p=0;
-
-   while(p<l.length()){
-     int e=l.indexOf('\n',p);
-     if(e<0)e=l.length();
-     n++;
-     p=e+1;
-   }
-
-   maxItems=(n>0)?n-1:0;
- }
- else maxItems=0;
-
- if(selected<0)selected=maxItems;
- if(selected>maxItems)selected=0;
-
- dirty=true;
-}
-
-void moveChem(int d){
- chemZ=(d<0)?
-   (chemZ<=1?118:chemZ-1):
-   (chemZ>=118?1:chemZ+1);
-
- dirty=true;
-}
-
-void movePeriodic(int dx,int dy){
- const auto*e=Chemistry::byAtomicNumber(chemZ);
-
- int p=atoi(e->period);
- int g=atoi(e->group);
-
- for(int t=0;t<30;t++){
-   g+=dx;
-   p+=dy;
-
-   if(g<1)g=18;
-   if(g>18)g=1;
-   if(p<1)p=7;
-   if(p>7)p=1;
-
-   int z=zAt(p,g);
-
-   if(z){
-     chemZ=z;
-     dirty=true;
-     return;
-   }
- }
-}
-
-void key(){
- if(!M5Cardputer.Keyboard.isChange()||
-    !M5Cardputer.Keyboard.isPressed())
-   return;
-
- auto k=M5Cardputer.Keyboard.keysState();
-
- if(screen==SD_TEXT){
-   for(auto ch:k.word){
-     if(ch==';'||ch=='w'||ch=='W')
-       textOffset=max(0,textOffset-1);
-     else if(ch=='.'||ch=='s'||ch=='S')
-       textOffset++;
-
-     dirty=true;
-   }
-
-   if(k.del){
-     back();
-     return;
-   }
-
-   return;
- }
-
- if(screen==SD_BROWSER||screen==BIOLOGY||screen==FILES){
-   for(auto ch:k.word){
-
-     if(ch=='n'||ch=='N'){
-       String l=SDManager::list(path);
-       int p=0,line=0;
-
-       while(p<l.length()){
-         int e=l.indexOf('\n',p);
-         if(e<0)e=l.length();
-
-         if(line==selected){
-           String s=l.substring(p,e);
-
-           if(s.startsWith("[F] ")){
-             renameOld=SDManager::normalize(
-               path,
-               s.substring(4)
-             );
-
-             int dot=s.lastIndexOf('.');
-             renameExt=dot>0?s.substring(dot):"";
-             input="";
-             screen=RENAME;
-           }
-
-           break;
-         }
-
-         p=e+1;
-         line++;
-       }
-
-       dirty=true;
-       return;
-     }
-
-     else if(ch==';'||ch=='w'||ch=='W'){
-       selected--;
-       dirty=true;
-     }
-
-     else if(ch=='.'||ch=='s'||ch=='S'){
-       selected++;
-       dirty=true;
-     }
-
-     else if(ch==','){
-       int slash=path.lastIndexOf('/');
-
-       if(path!="/"){
-         if(slash<=0)
-           path="/";
-         else
-           path=path.substring(0,slash);
-
-         selected=0;
-         dirty=true;
-       }
-     }
-
-     else if(ch=='/'){
-       activate();
-       return;
-     }
-   }
-
-   if(k.del){
-     if(path!="/"){
-       int slash=path.lastIndexOf('/');
-
-       if(slash<=0)
-         path="/";
-       else
-         path=path.substring(0,slash);
-
-       selected=0;
-       dirty=true;
-     }
-     else{
-       back();
-     }
-
-     return;
-   }
-
-   if(k.enter){
-     activate();
-     return;
-   }
-
-   return;
- }
-
- if(screen==RENAME){
-   for(auto ch:k.word){
-     if(ch==' '||ch=='_'||
-        isAlphaNumeric(ch)||
-        ch=='-'||ch=='.'){
-       if(ch!='.')
-         input+=ch;
-
-       dirty=true;
-     }
-   }
-
-   if(k.del){
-     if(input.length())
-       input.remove(input.length()-1);
-     else
-       back();
-
-     dirty=true;
-     return;
-   }
-
-   if(k.enter){
-     activate();
-     return;
-   }
-
-   return;
- }
-
- if(screen==PHYSICS_DATA){
-   for(auto ch:k.word){
-
-     if(ch=='c'||ch=='C'){
-       assistVarPos=0;
-       input="";
-       message="";
-       screen=PHYSICS_VALUES;
-       dirty=true;
-       return;
-     }
-
-     if(ch==';'||ch=='w'||ch=='W'){
-       selected--;
-
-       if(selected<0)
-         selected=assistVarCount-1;
-
-       dirty=true;
-     }
-
-     else if(ch=='.'||ch=='s'||ch=='S'){
-       selected++;
-
-       if(selected>=assistVarCount)
-         selected=0;
-
-       dirty=true;
-     }
-   }
-
-   if(k.enter){
-     activate();
-     return;
-   }
-
-   if(k.del){
-     back();
-     return;
-   }
-
-   return;
- }
-
- if(screen==PHYSICS_ASSIST){
-   for(auto ch:k.word){
-
-     if(ch==';'||ch=='w'||ch=='W'){
-       selected--;
-
-       if(selected<0)
-         selected=7;
-
-       dirty=true;
-     }
-
-     else if(ch=='.'||ch=='s'||ch=='S'){
-       selected++;
-
-       if(selected>7)
-         selected=0;
-
-       dirty=true;
-     }
-   }
-
-   if(k.enter){
-     activate();
-     return;
-   }
-
-   if(k.del){
-     back();
-     return;
-   }
-
-   return;
- }
-
- if(screen==PHYSICS_VALUES){
-   for(auto ch:k.word)
-     appendInput(ch);
-
-   if(k.del){
-     if(input.length())
-       input.remove(input.length()-1);
-     else
-       back();
-
-     dirty=true;
-     return;
-   }
-
-   if(k.enter){
-     activate();
-     return;
-   }
-
-   return;
- }
-
- if(screen==PHYSICS_RESULT){
-   if(k.enter){
-     activate();
-     return;
-   }
-
-   if(k.del){
-     back();
-     return;
-   }
-
-   return;
- }
-
- bool text=(
-   screen==CALC||
-   screen==EQUATION||
-   screen==EXPONENTIAL||
-   screen==TRIG||
-   screen==PHYSICS_RUN||
-   screen==NOTES_EDIT||
-   (screen==GRAPH&&graphEditing)
- );
-
- for(auto ch:k.word){
-
-   if(text){
-     appendInput(ch);
+   if(!r.ok||!isfinite(r.value)){
+     havePrev=false;
      continue;
    }
 
-   if(screen==PERIODIC){
-     if(ch==',')movePeriodic(-1,0);
-     else if(ch=='/')movePeriodic(1,0);
-     else if(ch==';')movePeriodic(0,-1);
-     else if(ch=='.')movePeriodic(0,1);
-     else if(ch=='w'||ch=='W')movePeriodic(0,-1);
-     else if(ch=='s'||ch=='S')movePeriodic(0,1);
+   double y=r.value;
+
+   if(y<y0||y>y1){
+     havePrev=false;
+     continue;
    }
 
-   else if(screen==CHEM_INFO||screen==BONDS){
-     if(ch==','||ch=='w'||ch=='W')
-       moveChem(-1);
-     else if(ch=='/'||ch=='s'||ch=='S')
-       moveChem(1);
-   }
+   int py=(int)round(gy+((y1-y)/(y1-y0))*(gh-1));
 
-   else if(screen==GRAPH){
-     if(ch==',')
-       graphCenter-=0.5;
-     else if(ch=='/')
-       graphCenter+=0.5;
-     else if(ch==';')
-       graphScale*=1.15;
-     else if(ch=='.')
-       graphScale/=1.15;
+   if(havePrev&&abs(py-prevY)<gh)
+     M5Cardputer.Display.drawLine(prevX,prevY,gx+px,py,TFT_CYAN);
+   else
+     M5Cardputer.Display.drawPixel(gx+px,py,TFT_CYAN);
 
-     dirty=true;
-   }
-
-   else if(ch==','||ch=='w'||ch=='W'){
-     move(-1);
-   }
-
-   else if(ch=='/'||ch=='s'||ch=='S'){
-     move(1);
-   }
+   prevX=gx+px;
+   prevY=py;
+   havePrev=true;
  }
 
- if(k.del){
-   if(text&&input.length()){
-     input.remove(input.length()-1);
-     dirty=true;
-   }
-   else{
-     back();
-   }
-
-   return;
- }
-
- if(k.enter){
-   activate();
-   return;
- }
+ txt("f(x)="+expr,5,120,TFT_WHITE);
+ footer("ENTER editar   DEL voltar");
 }
 
-}
+void drawRename(){bg();header("RENOMEAR ARQUIVO • N");txt("Atual: "+renameOld,5,25,TFT_DARKGREY);txt("Novo nome (sem trocar extensao):",5,41,TFT_WHITE);M5Cardputer.Display.drawRoundRect(4,52,232,27,4,TFT_DARKGREY);String shown=input;if(shown.length()>34)shown=shown.substring(shown.length()-34);txt(shown+renameExt,8,61,TFT_CYAN);txt("ENTER confirmar   DEL cancelar",5,100,TFT_DARKGREY);}
+void drawNotesMenu(){bg();header("ANOTACOES");card(5,27,72,72,"+","NOVA",selected==0,TFT_GREEN);card(83,27,72,72,"SD","LER",selected==1,TFT_CYAN);card(161,27,72,72,"N","MATERIAIS",selected==2,TFT_YELLOW);footer();}
+void draw(){if(!dirty)return;dirty=false;switch(screen){case HOME:drawHome();break;case MATH:drawMath();break;case PHYSICS:drawPhys();break;case CHEMISTRY:drawChem();break;case PERIODIC:drawPeriodic();break;case CHEM_INFO:drawChemInfo();break;case BONDS:drawBonds();break;case BIOLOGY:path="/BIOLOGIA";drawSD();break;case FILES:drawSD();break;case WIFI:bg();header("WI-FI • TRANSFERENCIA");txt("Rede: Cardputer-Estudos",5,30,TFT_CYAN);txt("Endereco: 192.168.4.1",5,47);txt("Envie arquivos pelo navegador",5,64);txt("Arquivos ficam no SD",5,81,TFT_GREEN);footer("DEL voltar");break;case NOTES:drawNotesMenu();break;case SD_BROWSER:drawSD();break;case SD_TEXT:drawText();break;case IMAGE_VIEW:drawImage();break;case CALC:drawCalc();break;case EQUATION:drawEquation("RESOLVER EQUACAO");break;case EXPONENTIAL:drawEquation("EQUACAO EXPONENCIAL");break;case TRIG:drawInput("TRIG / LOG / RAIZ","Ex.: sen(pi/2)   log(100)   sqrt(25)");break;case GRAPH:drawGraph();break;case PHYSICS_RUN:drawPhysRun();break;case PHYSICS_ASSIST:drawPhysicsAssist();break;case PHYSICS_DATA:drawPhysicsData();break;case PHYSICS_VALUES:drawPhysicsValues();break;case PHYSICS_RESULT:drawPhysicsResult();break;case NOTES_EDIT:drawInput("NOVA ANOTACAO","Digite e ENTER salva no SD.");break;case RENAME:drawRename();break;}}
+void goHome(){screen=HOME;selected=0;input="";message="";path="/";dirty=true;}
+void back(){if(screen==HOME)return;if(screen==SD_TEXT||screen==IMAGE_VIEW){screen=SD_BROWSER;dirty=true;return;}if(screen==SD_BROWSER){goHome();return;}if(screen==PERIODIC||screen==CHEM_INFO||screen==BONDS){screen=CHEMISTRY;selected=0;dirty=true;return;}if(screen==CALC||screen==EQUATION||screen==EXPONENTIAL||screen==TRIG||screen==GRAPH){screen=MATH;selected=0;input="";message="";dirty=true;return;}if(screen==PHYSICS_RUN||screen==PHYSICS_ASSIST||screen==PHYSICS_DATA||screen==PHYSICS_VALUES||screen==PHYSICS_RESULT){screen=PHYSICS;selected=0;input="";message="";dirty=true;return;}if(screen==NOTES_EDIT){screen=NOTES;dirty=true;return;}if(screen==RENAME){screen=SD_BROWSER;input="";renameOld="";renameExt="";dirty=true;return;}goHome();}
+void appendInput(char c){if(c=='`')return;if(c==',')c='.';if(c>=32&&c<=126){input+=c;dirty=true;}}
 
-namespace App {
-
-void begin(){
-  SDManager::begin();
-  WifiManager::begin();
-  dirty=true;
-  draw();
-}
-
-void update(){
-  key();
-  WifiManager::update();
-  draw();
-}
-
-}
+void activate(){
+ if(screen==HOME){switch(selected){case 0:screen=MATH;break;case 1:screen=PHYSICS;break;case 2:screen=CHEMISTRY;break;case 3:screen=PERIODIC;chemZ=1;break;case 4:screen=BIOLOGY;path="/BIOLOGIA";break;case 5:screen=FILES;path="/";break;case 6:screen=WIFI;break;case 7:screen=NOTES;break;}selected=0;input="";message="";dirty=true;return;}
+ if(screen==MATH){switch(selected){case 0:screen=CALC;break;case 1:screen=EQUATION;break;case 2:screen=EXPONENTIAL;break;case 3:screen=TRIG;break;case 4:screen=GRAPH;input="x^2";graphEditing=false;break;case 5:screen=SD_BROWSER;path="/MATEMATICA";break;case 6:screen=SD_BROWSER;path="/MATEMATICA";break;}selected=0;input=screen==GRAPH?input:"";message="";dirty=true;return;}
+ if(screen==PHYSICS){if(selected==6){screen=SD_BROWSER;path="/FISICA";}else if(selected==0){assistCategory=0;selected=0;setAssistVars();screen=PHYSICS_ASSIST;}else{physTarget=selected;screen=PHYSICS_RUN;input="";message="";}dirty=true;return;}
+ if(screen==CHEMISTRY){if(selected==0)screen=PERIODIC;else if(selected==1)screen=CHEM_INFO;else if(selected==2)screen=BONDS;else {screen=SD_BROWSER;path="/QUIMICA";}selected=0;dirty=true;return;}
+ if(screen==PERIODIC){screen=CHEM_INFO;dirty=true;return;}
+ if(screen==CHEM_INFO){screen=BONDS;dirty=true;return;}
+ if(screen==CALC||screen==TRIG){auto r=MathEngine::evaluate(input);message=r.text;dirty=true;return;}
+ if(screen==EQUATION){auto r=MathEngine::solveEquation(input);message=r.text;dirty=true;return;}
+ if(screen==EXPONENTIAL){auto r=MathEngine::solveExponential(input);message=r.text;dirty=true;return;}
+ if(screen==GRAPH){graphEditing=!graphEditing;dirty=true;return;}
+ if(screen==PHYSICS_ASSIST){assistCategory=selected;setAssistVars();selected=0;screen=PHYSICS_DATA;dirty=true;return;}
+ if(screen==PHYSICS_DATA){if(assistVarCount==0){message="Nenhum dado disponivel.";screen=PHYSICS_RESULT;dirty=true;return;}if(assistSelected[selected])assistSelected[selected]=false;else assistSelected[selected]=true;dirty=true;return;}
+ if(screen==PHYSICS_VALUES){advanceToSelectedAssistVar();if(assistVarPos>=assistVarCount){message="Nenhum dado foi preenchido.";screen=PHYSICS_RESULT;dirty=true;return;}if(input.length()==0){message="Digite um valor para "+assistVars[assistVarPos];dirty=true;return;}assistValues[assistVarPos]=input;input="";assistVarPos++;advanceToSelectedAssistVar()
