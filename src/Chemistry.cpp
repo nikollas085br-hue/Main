@@ -1,56 +1,75 @@
 #include "Chemistry.h"
-#include <cstring>
+#include <Arduino.h>
 
 namespace Chemistry {
 
 static const Element elements[] = {
-    {1,  "H",  "Hidrogenio",   1,  1,  "nao metal",        "1s1"},
-    {2,  "He", "Helio",        18,  1,  "gas nobre",        "1s2"},
+    {"H",  "Hidrogenio",       1,  "1",  "1", "Nao metal",              "1s1"},
+    {"He", "Helio",             2,  "18", "1", "Gas nobre",              "1s2"},
 
-    {3,  "Li", "Litio",         1,  2,  "metal alcalino",   "[He] 2s1"},
-    {4,  "Be", "Berilio",       2,  2,  "alcalino-terroso", "[He] 2s2"},
-    {5,  "B",  "Boro",         13,  2,  "metaloide",        "[He] 2s2 2p1"},
-    {6,  "C",  "Carbono",      14,  2,  "nao metal",        "[He] 2s2 2p2"},
-    {7,  "N",  "Nitrogenio",   15,  2,  "nao metal",        "[He] 2s2 2p3"},
-    {8,  "O",  "Oxigenio",     16,  2,  "nao metal",        "[He] 2s2 2p4"},
-    {9,  "F",  "Fluor",        17,  2,  "halogenio",        "[He] 2s2 2p5"},
-    {10, "Ne", "Neonio",       18,  2,  "gas nobre",        "[He] 2s2 2p6"},
+    {"Li", "Litio",             3,  "1",  "2", "Metal alcalino",         "[He] 2s1"},
+    {"Be", "Berilio",           4,  "2",  "2", "Metal alcalino-terroso", "[He] 2s2"},
+    {"B",  "Boro",               5,  "13", "2", "Semimetal",              "[He] 2s2 2p1"},
+    {"C",  "Carbono",            6,  "14", "2", "Nao metal",              "[He] 2s2 2p2"},
+    {"N",  "Nitrogenio",         7,  "15", "2", "Nao metal",              "[He] 2s2 2p3"},
+    {"O",  "Oxigenio",           8,  "16", "2", "Nao metal",              "[He] 2s2 2p4"},
+    {"F",  "Fluor",              9,  "17", "2", "Halogenio",               "[He] 2s2 2p5"},
+    {"Ne", "Neonio",            10,  "18", "2", "Gas nobre",              "[He] 2s2 2p6"},
 
-    {11, "Na", "Sodio",         1,  3,  "metal alcalino",   "[Ne] 3s1"},
-    {12, "Mg", "Magnesio",      2,  3,  "alcalino-terroso", "[Ne] 3s2"},
-    {13, "Al", "Aluminio",     13,  3,  "metal",            "[Ne] 3s2 3p1"},
-    {14, "Si", "Silicio",      14,  3,  "metaloide",        "[Ne] 3s2 3p2"},
-    {15, "P",  "Fosforo",       15,  3,  "nao metal",        "[Ne] 3s2 3p3"},
-    {16, "S",  "Enxofre",       16,  3,  "nao metal",        "[Ne] 3s2 3p4"},
-    {17, "Cl", "Cloro",         17,  3,  "halogenio",        "[Ne] 3s2 3p5"},
-    {18, "Ar", "Argonio",       18,  3,  "gas nobre",        "[Ne] 3s2 3p6"},
+    {"Na", "Sodio",             11,  "1",  "3", "Metal alcalino",         "[Ne] 3s1"},
+    {"Mg", "Magnesio",          12,  "2",  "3", "Metal alcalino-terroso", "[Ne] 3s2"},
+    {"Al", "Aluminio",          13,  "13", "3", "Metal",                   "[Ne] 3s2 3p1"},
+    {"Si", "Silicio",           14,  "14", "3", "Semimetal",              "[Ne] 3s2 3p2"},
+    {"P",  "Fosforo",           15,  "15", "3", "Nao metal",              "[Ne] 3s2 3p3"},
+    {"S",  "Enxofre",           16,  "16", "3", "Nao metal",              "[Ne] 3s2 3p4"},
+    {"Cl", "Cloro",             17,  "17", "3", "Halogenio",               "[Ne] 3s2 3p5"},
+    {"Ar", "Argonio",            18,  "18", "3", "Gas nobre",              "[Ne] 3s2 3p6"},
 
-    {19, "K",  "Potassio",       1,  4,  "metal alcalino",   "[Ar] 4s1"},
-    {20, "Ca", "Calcio",         2,  4,  "alcalino-terroso", "[Ar] 4s2"},
+    {"K",  "Potassio",          19,  "1",  "4", "Metal alcalino",         "[Ar] 4s1"},
+    {"Ca", "Calcio",            20,  "2",  "4", "Metal alcalino-terroso", "[Ar] 4s2"},
+    {"Sc", "Escandio",          21,  "3",  "4", "Metal de transicao",     "[Ar] 3d1 4s2"},
+    {"Ti", "Titanio",           22,  "4",  "4", "Metal de transicao",     "[Ar] 3d2 4s2"},
+    {"V",  "Vanadio",           23,  "5",  "4", "Metal de transicao",     "[Ar] 3d3 4s2"},
+    {"Cr", "Cromo",             24,  "6",  "4", "Metal de transicao",     "[Ar] 3d5 4s1"},
+    {"Mn", "Manganes",          25,  "7",  "4", "Metal de transicao",     "[Ar] 3d5 4s2"},
+    {"Fe", "Ferro",             26,  "8",  "4", "Metal de transicao",     "[Ar] 3d6 4s2"},
+    {"Co", "Cobalto",           27,  "9",  "4", "Metal de transicao",     "[Ar] 3d7 4s2"},
+    {"Ni", "Niquel",            28,  "10", "4", "Metal de transicao",     "[Ar] 3d8 4s2"},
+    {"Cu", "Cobre",             29,  "11", "4", "Metal de transicao",     "[Ar] 3d10 4s1"},
+    {"Zn", "Zinco",             30,  "12", "4", "Metal de transicao",     "[Ar] 3d10 4s2"},
+    {"Ga", "Galio",             31,  "13", "4", "Metal",                   "[Ar] 3d10 4s2 4p1"},
+    {"Ge", "Germanio",          32,  "14", "4", "Semimetal",              "[Ar] 3d10 4s2 4p2"},
+    {"As", "Arsenio",           33,  "15", "4", "Semimetal",              "[Ar] 3d10 4s2 4p3"},
+    {"Se", "Selenio",           34,  "16", "4", "Nao metal",              "[Ar] 3d10 4s2 4p4"},
+    {"Br", "Bromo",             35,  "17", "4", "Halogenio",               "[Ar] 3d10 4s2 4p5"},
+    {"Kr", "Criptonio",         36,  "18", "4", "Gas nobre",              "[Ar] 3d10 4s2 4p6"},
 
-    {26, "Fe", "Ferro",          8,  4,  "metal de transicao", "[Ar] 3d6 4s2"},
-    {29, "Cu", "Cobre",         11,  4,  "metal de transicao", "[Ar] 3d10 4s1"},
-    {30, "Zn", "Zinco",         12,  4,  "metal de transicao", "[Ar] 3d10 4s2"},
+    {"Rb", "Rubidio",           37,  "1",  "5", "Metal alcalino",         "[Kr] 5s1"},
+    {"Sr", "Estroncio",         38,  "2",  "5", "Metal alcalino-terroso", "[Kr] 5s2"},
+    {"Ag", "Prata",             47,  "11", "5", "Metal de transicao",     "[Kr] 4d10 5s1"},
+    {"Cd", "Cadmio",            48,  "12", "5", "Metal de transicao",     "[Kr] 4d10 5s2"},
+    {"I",  "Iodo",              53,  "17", "5", "Halogenio",               "[Kr] 4d10 5s2 5p5"},
+    {"Xe", "Xenonio",           54,  "18", "5", "Gas nobre",              "[Kr] 4d10 5s2 5p6"},
 
-    {35, "Br", "Bromo",         17,  4,  "halogenio",        "[Ar] 3d10 4s2 4p5"},
+    {"Cs", "Cesio",             55,  "1",  "6", "Metal alcalino",         "[Xe] 6s1"},
+    {"Ba", "Bario",             56,  "2",  "6", "Metal alcalino-terroso", "[Xe] 6s2"},
+    {"Au", "Ouro",              79,  "11", "6", "Metal de transicao",     "[Xe] 4f14 5d10 6s1"},
+    {"Hg", "Mercurio",          80,  "12", "6", "Metal de transicao",     "[Xe] 4f14 5d10 6s2"},
+    {"Pb", "Chumbo",            82,  "14", "6", "Metal",                   "[Xe] 4f14 5d10 6s2 6p2"},
+    {"Bi", "Bismuto",           83,  "15", "6", "Metal",                   "[Xe] 4f14 5d10 6s2 6p3"},
+    {"Rn", "Radonio",           86,  "18", "6", "Gas nobre",              "[Xe] 4f14 5d10 6s2 6p6"},
 
-    {47, "Ag", "Prata",         11,  5,  "metal de transicao", "[Kr] 4d10 5s1"},
-    {53, "I",  "Iodo",          17,  5,  "halogenio",        "[Kr] 4d10 5s2 5p5"},
-
-    {56, "Ba", "Bario",          2,  6,  "alcalino-terroso", "[Xe] 6s2"},
-    {79, "Au", "Ouro",          11,  6,  "metal de transicao", "[Xe] 4f14 5d10 6s1"},
-    {80, "Hg", "Mercurio",      12,  6,  "metal de transicao", "[Xe] 4f14 5d10 6s2"},
-    {82, "Pb", "Chumbo",        14,  6,  "metal",            "[Xe] 4f14 5d10 6s2 6p2"},
-
-    {92, "U",  "Uranio",         0,  7,  "actinideo",        "[Rn] 5f3 6d1 7s2"}
+    {"Fr", "Francio",            87, "1",  "7", "Metal alcalino",         "[Rn] 7s1"},
+    {"Ra", "Radio",              88, "2",  "7", "Metal alcalino-terroso", "[Rn] 7s2"},
+    {"U",  "Uranio",             92, "act", "7", "Actinideo",             "[Rn] 5f3 6d1 7s2"}
 };
 
-static const size_t elementCount =
+static const size_t ELEMENT_COUNT =
     sizeof(elements) / sizeof(elements[0]);
 
-const Element* findBySymbol(const String& symbol) {
-    for (size_t i = 0; i < elementCount; ++i) {
-        if (symbol.equalsIgnoreCase(elements[i].symbol)) {
+const Element* byAtomicNumber(uint8_t z) {
+    for (size_t i = 0; i < ELEMENT_COUNT; ++i) {
+        if (elements[i].z == z) {
             return &elements[i];
         }
     }
@@ -58,20 +77,43 @@ const Element* findBySymbol(const String& symbol) {
     return nullptr;
 }
 
-const Element* findByName(const String& name) {
-    for (size_t i = 0; i < elementCount; ++i) {
-        if (name.equalsIgnoreCase(elements[i].name)) {
+const Element* find(const String& query) {
+    String q = query;
+    q.trim();
+    q.toLowerCase();
+
+    if (q.length() == 0) {
+        return nullptr;
+    }
+
+    // Primeiro tenta pelo símbolo ou nome.
+    for (size_t i = 0; i < ELEMENT_COUNT; ++i) {
+        String symbol = elements[i].symbol;
+        String name = elements[i].name;
+
+        symbol.toLowerCase();
+        name.toLowerCase();
+
+        if (q == symbol || q == name) {
             return &elements[i];
         }
     }
 
-    return nullptr;
-}
+    // Depois tenta pelo número atômico.
+    bool numeric = true;
 
-const Element* findByAtomicNumber(int number) {
-    for (size_t i = 0; i < elementCount; ++i) {
-        if (elements[i].atomicNumber == number) {
-            return &elements[i];
+    for (size_t i = 0; i < q.length(); ++i) {
+        if (!isDigit(q[i])) {
+            numeric = false;
+            break;
+        }
+    }
+
+    if (numeric) {
+        int z = q.toInt();
+
+        if (z >= 1 && z <= 118) {
+            return byAtomicNumber((uint8_t)z);
         }
     }
 
@@ -79,67 +121,67 @@ const Element* findByAtomicNumber(int number) {
 }
 
 String bondType(const Element& a, const Element& b) {
+    String ca = a.category;
+    String cb = b.category;
 
-    // Comparacao segura entre const char* e texto.
-    const bool aGasNobre =
-        strcmp(a.category, "gas nobre") == 0;
+    ca.toLowerCase();
+    cb.toLowerCase();
 
-    const bool bGasNobre =
-        strcmp(b.category, "gas nobre") == 0;
+    bool metalA =
+        ca.indexOf("metal") >= 0;
 
-    // Gases nobres normalmente nao formam ligacoes
-    // quimicas comuns nas condicoes escolares.
-    if (aGasNobre || bGasNobre) {
-        return "Nenhuma ligacao comum";
+    bool metalB =
+        cb.indexOf("metal") >= 0;
+
+    bool nonMetalA =
+        ca.indexOf("nao metal") >= 0 ||
+        ca.indexOf("halogenio") >= 0;
+
+    bool nonMetalB =
+        cb.indexOf("nao metal") >= 0 ||
+        cb.indexOf("halogenio") >= 0;
+
+    // Metal + metal -> ligação metálica
+    if (metalA && metalB) {
+        return "Metalica";
     }
 
-    const bool aMetal =
-        strstr(a.category, "metal") != nullptr ||
-        strstr(a.category, "alcalino") != nullptr ||
-        strstr(a.category, "terroso") != nullptr ||
-        strstr(a.category, "actinideo") != nullptr;
-
-    const bool bMetal =
-        strstr(b.category, "metal") != nullptr ||
-        strstr(b.category, "alcalino") != nullptr ||
-        strstr(b.category, "terroso") != nullptr ||
-        strstr(b.category, "actinideo") != nullptr;
-
-    // Metal + nao metal -> ionica.
-    if (aMetal != bMetal) {
-        return "Ligacao ionica";
+    // Metal + não metal -> ligação iônica
+    if ((metalA && nonMetalB) ||
+        (metalB && nonMetalA)) {
+        return "Ionica";
     }
 
-    // Metal + metal -> metalica.
-    if (aMetal && bMetal) {
-        return "Ligacao metalica";
+    // Não metal + não metal -> ligação covalente
+    if (nonMetalA && nonMetalB) {
+        return "Covalente";
     }
 
-    // Nao metal + nao metal -> covalente.
-    return "Ligacao covalente";
+    // Semimetais podem participar de ligações covalentes.
+    if (!metalA && !metalB) {
+        return "Covalente";
+    }
+
+    return "Nao determinada";
 }
 
 String octetNote(const Element& e) {
-
-    // Hidrogenio e helio sao excecoes importantes:
-    // a estabilidade da primeira camada ocorre com 2 eletrons.
-    if (e.atomicNumber == 1) {
-        return "H segue a regra do dueto: estabilidade com 2 eletrons.";
+    // H e He são exceções importantes:
+    // a camada K comporta apenas 2 elétrons.
+    if (e.z == 1 || e.z == 2) {
+        return "Regra do dueto: a camada K fica estavel com 2 eletrons.";
     }
 
-    if (e.atomicNumber == 2) {
-        return "He possui a primeira camada completa com 2 eletrons.";
+    // Gases nobres normalmente já possuem a camada de valência completa.
+    String category = e.category;
+    category.toLowerCase();
+
+    if (category.indexOf("gas nobre") >= 0) {
+        return "Gas nobre: camada de valencia completa; alta estabilidade.";
     }
 
-    // Alguns elementos nao seguem uma regra simples de octeto.
-    if (e.atomicNumber == 5 ||
-        e.atomicNumber == 6 ||
-        e.atomicNumber == 7 ||
-        e.atomicNumber == 8) {
-        return "A regra do octeto e uma aproximacao; existem excecoes.";
-    }
-
-    return "A regra do octeto ajuda a interpretar muitas ligacoes, mas nao e universal.";
+    return "Regra do octeto: muitos atomos tendem a atingir 8 eletrons "
+           "na camada de valencia. Existem excecoes.";
 }
 
 } // namespace Chemistry
