@@ -128,7 +128,46 @@ void drawImage(){
 }
 void drawRename(){bg();header("RENOMEAR ARQUIVO • N");txt("Atual: "+renameOld,5,25,TFT_DARKGREY);txt("Novo nome (sem trocar extensao):",5,41,TFT_WHITE);M5Cardputer.Display.drawRoundRect(4,52,232,27,4,TFT_DARKGREY);String shown=input;if(shown.length()>34)shown=shown.substring(shown.length()-34);txt(shown+renameExt,8,61,TFT_CYAN);txt("ENTER confirmar   DEL cancelar",5,100,TFT_DARKGREY);}
 void drawNotesMenu(){bg();header("ANOTACOES");card(5,27,72,72,"+","NOVA",selected==0,TFT_GREEN);card(83,27,72,72,"SD","LER",selected==1,TFT_CYAN);card(161,27,72,72,"N","MATERIAIS",selected==2,TFT_YELLOW);footer();}
-void draw(){if(!dirty)return;dirty=false;switch(screen){case HOME:drawHome();break;case MATH:drawMath();break;case PHYSICS:drawPhys();break;case CHEMISTRY:drawChem();break;case PERIODIC:drawPeriodic();break;case CHEM_INFO:drawChemInfo();break;case BONDS:drawBonds();break;case BIOLOGY:path="/BIOLOGIA";drawSD();break;case FILES:drawSD();break;case WIFI:bg();header("WI-FI • TRANSFERENCIA");txt("Rede: Cardputer-Estudos",5,30,TFT_CYAN);txt("Endereco: 192.168.4.1",5,47);txt("Envie arquivos pelo navegador",5,64);txt("Arquivos ficam no SD",5,81,TFT_GREEN);footer("DEL voltar");break;case NOTES:drawNotesMenu();break;case SD_BROWSER:drawSD();break;case SD_TEXT:drawText();break;case IMAGE_VIEW:drawImage();break;case CALC:drawCalc();break;case EQUATION:drawEquation("RESOLVER EQUACAO");break;case EXPONENTIAL:drawEquation("EQUACAO EXPONENCIAL");break;case TRIG:drawInput("TRIG / LOG / RAIZ","Ex.: sen(pi/2)   log(100)   sqrt(25)");break;case GRAPH:drawGraph();break;case PHYSICS_RUN:drawPhysRun();break;case PHYSICS_ASSIST:drawPhysicsAssist();break;case PHYSICS_DATA:drawPhysicsData();break;case PHYSICS_VALUES:drawPhysicsValues();break;case PHYSICS_RESULT:drawPhysicsResult();break;case NOTES_EDIT:drawInput("NOVA ANOTACAO","Digite e ENTER salva no SD.");break;case RENAME:drawRename();break;}}
+void draw(){
+ if(!dirty)return;
+ dirty=false;
+ switch(screen){
+  case HOME:drawHome();break;
+  case MATH:drawMath();break;
+  case PHYSICS:drawPhys();break;
+  case CHEMISTRY:drawChem();break;
+  case PERIODIC:drawPeriodic();break;
+  case CHEM_INFO:drawChemInfo();break;
+  case BONDS:drawBonds();break;
+  case BIOLOGY:path="/BIOLOGIA";drawSD();break;
+  case FILES:drawSD();break;
+  case WIFI:
+   bg();
+   header("WI-FI • TRANSFERENCIA");
+   txt("Rede: Cardputer-Estudos",5,30,TFT_CYAN);
+   txt("Endereco: 192.168.4.1",5,47);
+   txt("Envie arquivos pelo navegador",5,64);
+   txt("Arquivos ficam no SD",5,81,TFT_GREEN);
+   footer("DEL voltar");
+   break;
+  case NOTES:drawNotesMenu();break;
+  case SD_BROWSER:drawSD();break;
+  case SD_TEXT:drawText();break;
+  case IMAGE_VIEW:drawImage();break;
+  case CALC:drawCalc();break;
+  case EQUATION:drawEquation("RESOLVER EQUACAO");break;
+  case EXPONENTIAL:drawEquation("EQUACAO EXPONENCIAL");break;
+  case TRIG:drawInput("TRIG / LOG / RAIZ","Ex.: sen(pi/2)   log(100)   sqrt(25)");break;
+  case GRAPH:drawGraph();break;
+  case PHYSICS_RUN:drawPhysRun();break;
+  case PHYSICS_ASSIST:drawPhys();break;
+  case PHYSICS_DATA:drawPhys();break;
+  case PHYSICS_VALUES:drawPhysRun();break;
+  case PHYSICS_RESULT:drawPhysRun();break;
+  case NOTES_EDIT:drawInput("NOVA ANOTACAO","Digite e ENTER salva no SD.");break;
+  case RENAME:drawRename();break;
+ }
+}
 void goHome(){screen=HOME;selected=0;input="";message="";path="/";dirty=true;}
 void back(){if(screen==HOME)return;if(screen==SD_TEXT||screen==IMAGE_VIEW){screen=SD_BROWSER;dirty=true;return;}if(screen==SD_BROWSER){goHome();return;}if(screen==PERIODIC||screen==CHEM_INFO||screen==BONDS){screen=CHEMISTRY;selected=0;dirty=true;return;}if(screen==CALC||screen==EQUATION||screen==EXPONENTIAL||screen==TRIG||screen==GRAPH){screen=MATH;selected=0;input="";message="";dirty=true;return;}if(screen==PHYSICS_RUN||screen==PHYSICS_ASSIST||screen==PHYSICS_DATA||screen==PHYSICS_VALUES||screen==PHYSICS_RESULT){screen=PHYSICS;selected=0;input="";message="";dirty=true;return;}if(screen==NOTES_EDIT){screen=NOTES;dirty=true;return;}if(screen==RENAME){screen=SD_BROWSER;input="";renameOld="";renameExt="";dirty=true;return;}goHome();}
 void appendInput(char c){if(c=='`')return;if(c==',')c='.';if(c>=32&&c<=126){input+=c;dirty=true;}}
@@ -151,46 +190,4 @@ void activate(){
  if(screen==NOTES){if(selected==0){screen=NOTES_EDIT;input="";message="";}else if(selected==1){screen=SD_BROWSER;path="/ANOTACOES";selected=0;}else{screen=SD_BROWSER;path="/MATERIAIS";selected=0;}dirty=true;return;}
  if(screen==BONDS){chemB=(chemB>=118)?1:chemB+1;dirty=true;return;}
  if(screen==NOTES_EDIT){if(input.length()){String p="/ANOTACOES/nota_"+String(millis())+".txt";message=SDManager::writeText(p,input)?"Anotacao salva no SD":"Falha ao salvar";}dirty=true;return;}
- if(screen==RENAME){String base=input;while(base.startsWith(" "))base.remove(0,1);while(base.endsWith(" "))base.remove(base.length()-1);if(base.length() && base.indexOf("/")<0 && base.indexOf("\\")<0){String dest=SDManager::normalize(path,base+renameExt);message=SDManager::renameFile(renameOld,dest)?"Arquivo renomeado":"Nao foi possivel renomear";}screen=SD_BROWSER;input="";renameOld="";renameExt="";dirty=true;return;}
- if(screen==SD_BROWSER||screen==BIOLOGY||screen==FILES){String l=SDManager::list(path);int p=0,line=0;while(p<l.length()){int e=l.indexOf('\n',p);if(e<0)e=l.length();if(line==selected){String s=l.substring(p,e);if(s.startsWith("[D] ")){path=SDManager::normalize(path,s.substring(4));selected=0;}else if(s.startsWith("[F] ")){String fp=SDManager::normalize(path,s.substring(4));String ext=extension(fp);if(ext=="txt"||ext=="md"||ext=="csv"||ext=="log"||ext=="ini"||ext=="json"||ext=="py"||ext=="cpp"||ext=="h"||ext=="hpp"||ext=="ino"||ext=="js"||ext=="css"||ext=="html"){textCache=SDManager::readText(fp);textOffset=0;screen=SD_TEXT;}else if(ext=="jpg"||ext=="jpeg"||ext=="png"||ext=="bmp"){path=fp;screen=IMAGE_VIEW;}else{message="Arquivo armazenado no SD.\nPDF/PPT/PPTX: transferencia disponivel.";}}break;}p=e+1;line++;}dirty=true;return;}
-}
-void move(int d){
- selected+=d;
- int maxItems=0;
- if(screen==HOME)maxItems=7;
- else if(screen==MATH)maxItems=6;
- else if(screen==PHYSICS)maxItems=6;
- else if(screen==PHYSICS_ASSIST)maxItems=7;
- else if(screen==PHYSICS_DATA)maxItems=(assistVarCount>0)?assistVarCount-1:0;
- else if(screen==CHEMISTRY)maxItems=3;
- else if(screen==NOTES)maxItems=2;
- else if(screen==SD_BROWSER||screen==BIOLOGY||screen==FILES){
-   String l=SDManager::list(path);
-   int n=0,p=0;
-   while(p<l.length()){
-     int e=l.indexOf('\n',p);
-     if(e<0)e=l.length();
-     n++;
-     p=e+1;
-   }
-   maxItems=(n>0)?n-1:0;
- }else maxItems=0;
- if(selected<0)selected=maxItems;
- if(selected>maxItems)selected=0;
- dirty=true;
-}
-
-void moveChem(int d){chemZ=(d<0)?(chemZ<=1?118:chemZ-1):(chemZ>=118?1:chemZ+1);dirty=true;}
-void movePeriodic(int dx,int dy){const auto*e=Chemistry::byAtomicNumber(chemZ);int p=atoi(e->period),g=atoi(e->group);for(int t=0;t<30;t++){g+=dx;p+=dy;if(g<1)g=18;if(g>18)g=1;if(p<1)p=7;if(p>7)p=1;int z=zAt(p,g);if(z){chemZ=z;dirty=true;return;}}}
-void key(){if(!M5Cardputer.Keyboard.isChange()||!M5Cardputer.Keyboard.isPressed())return;auto k=M5Cardputer.Keyboard.keysState();
- if(screen==SD_TEXT){for(auto ch:k.word){if(ch==';'||ch=='w'||ch=='W')textOffset=max(0,textOffset-1);else if(ch=='.'||ch=='s'||ch=='S')textOffset++;dirty=true;}if(k.del){back();return;}return;}
- if(screen==SD_BROWSER||screen==BIOLOGY||screen==FILES){for(auto ch:k.word){if(ch=='n'||ch=='N'){String l=SDManager::list(path);int p=0,line=0;while(p<l.length()){int e=l.indexOf('\n',p);if(e<0)e=l.length();if(line==selected){String s=l.substring(p,e);if(s.startsWith("[F] ")){renameOld=SDManager::normalize(path,s.substring(4));int dot=s.lastIndexOf('.');renameExt=dot>0?s.substring(dot):"";input="";screen=RENAME;}break;}p=e+1;line++;}dirty=true;return;}else if(ch==';'||ch=='w'||ch=='W'){selected--;dirty=true;}else if(ch=='.'||ch=='s'||ch=='S'){selected++;dirty=true;}else if(ch==','){int slash=path.lastIndexOf('/');if(path!="/"){if(slash<=0)path="/";else path=path.substring(0,slash);selected=0;dirty=true;}}else if(ch=='/'){activate();return;}}if(k.del){if(path!="/"){int slash=path.lastIndexOf('/');if(slash<=0)path="/";else path=path.substring(0,slash);selected=0;dirty=true;}else back();return;}if(k.enter){activate();return;}return;}
- if(screen==RENAME){for(auto ch:k.word){if(ch==' '||ch=='_'||isAlphaNumeric(ch)||ch=='-'||ch=='.'){if(ch!='.')input+=ch;dirty=true;}}if(k.del){if(input.length())input.remove(input.length()-1);else back();dirty=true;return;}if(k.enter){activate();return;}return;}
- if(screen==PHYSICS_DATA){for(auto ch:k.word){if(ch=='c'||ch=='C'){assistVarPos=0;input="";message="";screen=PHYSICS_VALUES;dirty=true;return;}if(ch==';'||ch=='w'||ch=='W'){selected--;if(selected<0)selected=assistVarCount-1;dirty=true;}else if(ch=='.'||ch=='s'||ch=='S'){selected++;if(selected>=assistVarCount)selected=0;dirty=true;}}if(k.enter){activate();return;}if(k.del){back();return;}return;}
- if(screen==PHYSICS_ASSIST){for(auto ch:k.word){if(ch==';'||ch=='w'||ch=='W'){selected--;if(selected<0)selected=7;dirty=true;}else if(ch=='.'||ch=='s'||ch=='S'){selected++;if(selected>7)selected=0;dirty=true;}}if(k.enter){activate();return;}if(k.del){back();return;}return;}
- if(screen==PHYSICS_VALUES){for(auto ch:k.word)appendInput(ch);if(k.del){if(input.length())input.remove(input.length()-1);else back();dirty=true;return;}if(k.enter){activate();return;}return;}
- if(screen==PHYSICS_RESULT){if(k.enter){activate();return;}if(k.del){back();return;}return;}
- bool text=(screen==CALC||screen==EQUATION||screen==EXPONENTIAL||screen==TRIG||screen==PHYSICS_RUN||screen==NOTES_EDIT||(screen==GRAPH&&graphEditing));for(auto ch:k.word){if(text){appendInput(ch);continue;}if(screen==PERIODIC){if(ch==',')movePeriodic(-1,0);else if(ch=='/')movePeriodic(1,0);else if(ch==';')movePeriodic(0,-1);else if(ch=='.')movePeriodic(0,1);else if(ch=='w'||ch=='W')movePeriodic(0,-1);else if(ch=='s'||ch=='S')movePeriodic(0,1);}else if(screen==CHEM_INFO||screen==BONDS){if(ch==','||ch=='w'||ch=='W')moveChem(-1);else if(ch=='/'||ch=='s'||ch=='S')moveChem(1);}else if(screen==GRAPH){if(ch==',')graphCenter-=0.5;else if(ch=='/')graphCenter+=0.5;else if(ch==';')graphScale*=1.15;else if(ch=='.')graphScale/=1.15;dirty=true;}else if(ch==','||ch=='w'||ch=='W')move(-1);else if(ch=='/'||ch=='s'||ch=='S')move(1);}
- if(k.del){if(text&&input.length()){input.remove(input.length()-1);dirty=true;}else back();return;}if(k.enter){activate();return;}}
-}
-namespace App {void begin(){SDManager::begin();WifiManager::begin();dirty=true;draw();}void update(){key();WifiManager::update();draw();}}
+ if(screen==RENAME){String base=input;while(base.startsWith(" "))base.remove(0,1);while(base.endsWith(" "))base.remove(base.length()-1);if(base.length() && base.indexOf("/")<0 && base.indexOf("\\")<0){String dest=SDManager::normalize(path,base+renameExt);message=SDManager::renameFile(renameOld
