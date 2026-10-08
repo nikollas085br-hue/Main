@@ -32,11 +32,11 @@ String assistVars[8];
 bool graphEditing=false;
 double graphCenter=0,graphScale=1;
 
-const char* homeName[]={"MATEMATICA","FISICA","QUIMICA","TABELA PERIODICA","BIOLOGIA","ARQUIVOS SD","WI-FI","ANOTACOES"};
-const char* homeIcon[]={"Σ","F","Q","118","BIO","SD","Wi","✎"};
-const char* mathName[]={"CALCULADORA","RESOLVER EQUACAO","EXPONENCIAL","TRIG / LOG / RAIZ","GRAFICO / FUNCAO","NOTAS","ARQUIVOS"};
-const char* mathIcon[]={"π","=","aˣ","sin","ƒ(x)","N","SD"};
-const char* physName[]={"ASSISTENTE","CINEMATICA","FORCA","ENERGIA","DENSIDADE","TRABALHO","NOTAS"};
+const char* homeName[]={"MATEMATICA","FISICA","QUIMICA","TABELA","BIOLOGIA","ARQUIVOS","WI-FI","ANOTACOES"};
+const char* homeIcon[]={"∑","F","Q","118","B","SD","Wi","N"};
+const char* mathName[]={"CALCULADORA","EQUACAO","EXPONENCIAL","TRIG / LOG","GRAFICO","MATERIAIS","ARQUIVOS"};
+const char* mathIcon[]={"123","x","10x","sin","f(x)","M","SD"};
+const char* physName[]={"ASSISTENTE","PESO","NORMAL","ATRITO","ELASTICA","CINEMATICA","MATERIAIS"};
 const char* physIcon[]={"?","v","F","E","ρ","W","N"};
 const char* chemName[]={"TABELA 118","ELEMENTO","LIGACOES","MATERIAIS"};
 const char* chemIcon[]={"118","⚛","⇄","SD"};
@@ -209,4 +209,5 @@ void activate(){
  if(screen==GRAPH){graphEditing=!graphEditing;dirty=true;return;}
  if(screen==PHYSICS_ASSIST){assistCategory=selected;setAssistVars();selected=0;screen=PHYSICS_DATA;dirty=true;return;}
  if(screen==PHYSICS_DATA){if(assistVarCount==0){message="Nenhum dado disponivel.";screen=PHYSICS_RESULT;dirty=true;return;}if(assistSelected[selected])assistSelected[selected]=false;else assistSelected[selected]=true;dirty=true;return;}
- if(screen==PHYSICS_VALUES){advanceToSelectedAssistVar();if(assistVarPos>=assistVarCount){message="Nenhum dado foi preenchido.";screen=PHYSICS_RESULT;dirty=true;return;}if(input.length()==0){message="Digite um valor para "+assistVars[assistVarPos];dirty=true;return;}assistValues[assistVarPos]=input;input="";assistVarPos++;advanceToSelectedAssistVar()
+ if(screen==PHYSICS_VALUES){advanceToSelectedAssistVar();if(assistVarPos>=assistVarCount){message="Nenhum dado foi preenchido.";screen=PHYSICS_RESULT;dirty=true;return;}if(input.length()==0){message="Digite um valor para "+assistVars[assistVarPos];dirty=true;return;}assistValues[assistVarPos]=input;input="";assistVarPos++;advanceToSelectedAssistVar();
+  if(assistVarPos>=assistVarCoun
